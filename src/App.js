@@ -531,16 +531,34 @@ const ResumePreview = () => (
     <div className="text-white space-y-6">
         <section>
             <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">EDUCATION</h2>
-            <p className="font-bold">Vellore Institute of Technology-AP</p>
-            <p className="text-xs text-white/60 italic">B.Tech in CSE | 2023 - Present (CGPA: 8.44)</p>
+            <div className="mb-2">
+                <p className="font-bold">Vellore Institute of Technology-AP</p>
+                <p className="text-xs text-white/60 italic">B.Tech in Computer Science and Engineering | 2023 - Present</p>
+                <p className="text-xs text-green-400">CGPA: 8.44 (Present)</p>
+            </div>
+            <div>
+                <p className="font-bold text-xs">Vidya Bharati Chinmaya Vidyalaya - CBSE</p>
+                <p className="text-[10px] text-white/40 italic">Higher Secondary (2022) | Secondary (2020)</p>
+            </div>
         </section>
+
         <section>
             <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">SKILLS</h2>
             <div className="flex flex-wrap gap-2 text-[10px]">
-                {["Java", "Python", "React", "AI/DL", "OpenCV"].map(skill => (
+                {["Java", "Python", "Development", "MathLab", "AI/DL", "Leadership", "OpenSource"].map(skill => (
                     <span key={skill} className="px-2 py-1 bg-white/10 border border-white/20">{skill}</span>
                 ))}
             </div>
+        </section>
+
+        <section>
+            <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">CERTIFICATIONS</h2>
+            <ul className="text-xs list-disc pl-4 space-y-1 opacity-80">
+                <li>Coursera Web Development</li>
+                <li>Oracle Generative AI Professional</li>
+                <li>HPC by IANEO</li>
+                <li>Engineer Clinics 2025 Finalist</li>
+            </ul>
         </section>
     </div>
 );
