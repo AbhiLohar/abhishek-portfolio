@@ -30,6 +30,17 @@ const userInfo = {
   ]
 };
 
+// --- TICKER DATA ---
+const statusMessages = [
+  "HINT: CLICK 'START' TO EXPLORE ALL SYSTEM APPS",
+  "GUIDE: DRAG WINDOW TITLEBARS TO REARRANGE YOUR DESKTOP",
+  "DISCOVER: DOUBLE-CLICK ICONS TO LAUNCH EXE FILES",
+  "PRO TIP: USE THE MS-DOS TERMINAL FOR A CLI EXPERIENCE",
+  "INFO: CLICK THE PALETTE ICON TO TOGGLE SYSTEM THEMES",
+  "MISSION: CHECK 'PROJECTS.EXE' TO SEE MY LATEST WORK",
+  "CONNECT: OPEN 'CONTACT.EXE' TO SEND AN ENCRYPTED MESSAGE"
+];
+
 const themes = {
   deepSea: { bg: '#050510', border: '#22c55e', text: '#22c55e', accent: '#3b82f6', label: 'Deep Sea' },
   matrix: { bg: '#000000', border: '#00ff41', text: '#00ff41', accent: '#008f11', label: 'Matrix' }
@@ -45,6 +56,33 @@ const handleDownloadResume = () => {
   document.body.removeChild(link);
 };
 
+// --- TICKER COMPONENT ---
+const StatusTicker = ({ messages }) => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % messages.length);
+    }, 5000); 
+    return () => clearInterval(timer);
+  }, [messages.length]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.4 }}
+        className="text-[9px] text-gray-700 font-bold uppercase italic whitespace-nowrap"
+      >
+        <span className="text-blue-700 mr-2">▶</span> {messages[index]}
+      </motion.span>
+    </AnimatePresence>
+  );
+};
+
 export default function App() {
   const [bootPhase, setBootPhase] = useState(0); 
   const [loadProgress, setLoadProgress] = useState(0);
@@ -53,6 +91,7 @@ export default function App() {
   const [activeWindow, setActiveWindow] = useState('about');
   const [activeTheme, setActiveTheme] = useState('deepSea');
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [showTicker, setShowTicker] = useState(true); // DISMISS STATE
   const constraintsRef = useRef(null);
 
   useEffect(() => {
@@ -189,18 +228,43 @@ export default function App() {
 
       <div className="absolute bottom-0 w-full h-10 bg-[#C0C0C0] border-t-2 border-white flex items-center px-1 z-[250]">
         <button onClick={() => setStartMenuOpen(!startMenuOpen)} 
-          className="bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 px-2 md:px-4 py-1 font-black text-black text-[10px] md:text-xs flex items-center gap-2 hover:bg-[#d0d0d0] active:border-gray-800">
+          className="bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 px-2 md:px-4 py-1 font-black text-black text-[10px] md:text-xs flex items-center gap-2 hover:bg-[#d0d0d0] active:border-gray-800 shrink-0">
           <div className="w-3 h-3 md:w-4 md:h-4 bg-green-600 border border-black/20" /> START
         </button>
-        <div className="flex-1 flex gap-1 px-1 md:px-3 overflow-x-auto scrollbar-hide">
-          {openWindows.map(id => (
-            <div key={id} onClick={() => toggleWindow(id)} 
-              className={`px-2 md:px-3 py-1 border-2 text-black text-[9px] md:text-[10px] font-bold uppercase cursor-pointer min-w-[70px] md:min-w-[90px] text-center truncate ${activeWindow === id ? 'bg-white/30 border-gray-800 border-r-white border-b-white' : 'bg-[#C0C0C0] border-white border-r-gray-800 border-b-gray-800'}`}>
-              {id}
-            </div>
-          ))}
+        
+        <div className="flex-1 flex items-center gap-1 px-1 md:px-3 overflow-hidden h-full">
+          {/* Active Tabs */}
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide max-w-full">
+            {openWindows.map(id => (
+              <div key={id} onClick={() => toggleWindow(id)} 
+                className={`px-2 md:px-3 py-1 border-2 text-black text-[9px] md:text-[10px] font-bold uppercase cursor-pointer min-w-[70px] md:min-w-[90px] text-center truncate ${activeWindow === id ? 'bg-white/30 border-gray-800 border-r-white border-b-white' : 'bg-[#C0C0C0] border-white border-r-gray-800 border-b-gray-800'}`}>
+                {id}
+              </div>
+            ))}
+          </div>
+
+          {/* DYNAMIC DISMISSABLE TICKER */}
+          <AnimatePresence>
+            {showTicker && (
+              <motion.div 
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="hidden lg:flex flex-1 items-center bg-black/5 h-7 px-3 border-2 border-white/30 border-t-gray-700 border-l-gray-700 overflow-hidden mx-2 shadow-inner relative group min-w-[200px]"
+              >
+                <StatusTicker messages={statusMessages} />
+                <button 
+                  onClick={() => setShowTicker(false)}
+                  className="absolute right-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity bg-[#C0C0C0] p-0.5 border border-gray-400"
+                >
+                  <X size={10} strokeWidth={4} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <div className="bg-[#C0C0C0] border-2 border-gray-500 border-r-white border-b-white px-2 md:px-4 py-1 text-black text-[9px] md:text-[10px] font-bold flex items-center gap-2 whitespace-nowrap">
+
+        <div className="bg-[#C0C0C0] border-2 border-gray-500 border-r-white border-b-white px-2 md:px-4 py-1 text-black text-[9px] md:text-[10px] font-bold flex items-center gap-2 whitespace-nowrap shrink-0">
           <div className="hidden sm:flex items-center gap-1 text-blue-700">
             <CloudSun size={14} /> <span>33°C</span>
           </div>
@@ -322,15 +386,12 @@ const ContactContent = () => {
     const [isSending, setIsSending] = useState(false);
     
     const validateContact = (value) => {
-        // Regex for basic Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        // Regex for Phone (accepts digits, spaces, and '+' prefix, 10-15 digits)
         const phoneRegex = /^(\+?\d{1,3}[- ]?)?\d{10}$/;
-        
         return emailRegex.test(value) || phoneRegex.test(value);
     };
 
-    const handleSend = async (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!validateContact(formData.contact)) {
         alert("SYSTEM ERROR: Invalid Contact Method.");
@@ -374,7 +435,6 @@ const ContactContent = () => {
         setIsSending(false);
     }
 };
-
     return (
         <div className="space-y-6 relative h-full">
             <h2 className="text-3xl font-black italic text-green-500 uppercase tracking-tighter border-b border-green-500/20 pb-2">
@@ -389,7 +449,7 @@ const ContactContent = () => {
                         exit={{ opacity: 0 }}
                         className="bg-green-600 text-black p-3 text-[10px] font-black uppercase text-center mb-4 border border-white shadow-[0_0_15px_rgba(34,197,94,0.5)]"
                     >
-                        NOTIFY: Message transmitted successfully to Abhishek's uplink.
+                        NOTIFY: Message transmitted successfully.
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -397,49 +457,24 @@ const ContactContent = () => {
             <form onSubmit={handleSend} className="space-y-4">
                 <div className="space-y-1">
                     <label className="text-[10px] text-green-500/70 uppercase font-bold">Identity Name</label>
-                    <input 
-                        required 
-                        type="text" 
-                        value={formData.name} 
-                        onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                        className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" 
-                        placeholder="ENTER NAME..." 
-                    />
+                    <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="ENTER NAME..." />
                 </div>
                 
                 <div className="space-y-1">
                     <label className="text-[10px] text-green-500/70 uppercase font-bold">Contact Method (Email / Phone)</label>
-                    <input 
-                        required 
-                        type="text" 
-                        value={formData.contact} 
-                        onChange={(e) => setFormData({...formData, contact: e.target.value})} 
-                        className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" 
-                        placeholder="GMAIL OR PHONE NUMBER..." 
-                    />
+                    <input required type="text" value={formData.contact} onChange={(e) => setFormData({...formData, contact: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="GMAIL OR PHONE NUMBER..." />
                 </div>
 
                 <div className="space-y-1">
                     <label className="text-[10px] text-green-500/70 uppercase font-bold">Encrypted Message</label>
-                    <textarea 
-                        required 
-                        value={formData.message} 
-                        onChange={(e) => setFormData({...formData, message: e.target.value})} 
-                        className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors h-24 resize-none" 
-                        placeholder="TYPE MESSAGE HERE..." 
-                    />
+                    <textarea required value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors h-24 resize-none" placeholder="TYPE MESSAGE HERE..." />
                 </div>
                 
-                <button 
-                    type="submit" 
-                    disabled={isSending}
-                    className={`w-full py-4 text-[11px] font-black uppercase transition-all flex items-center justify-center gap-2 ${isSending ? 'bg-gray-600 cursor-wait' : 'bg-green-600 hover:bg-green-400 active:scale-[0.98]'}`}
-                >
+                <button type="submit" disabled={isSending} className={`w-full py-4 text-[11px] font-black uppercase transition-all flex items-center justify-center gap-2 ${isSending ? 'bg-gray-600 cursor-wait' : 'bg-green-600 hover:bg-green-400'}`}>
                     <Mail size={14} className={isSending ? "animate-spin" : ""} /> 
                     {isSending ? "Processing..." : "Send Transmission"}
                 </button>
             </form>
-            <div className="pt-4 border-t border-white/10 opacity-40 text-[9px] uppercase tracking-[0.2em]">Status: Encrypted Peer-to-Peer Protocol Active</div>
         </div>
     );
 };
@@ -448,8 +483,7 @@ const Terminal = ({ onOpen }) => {
     const [input, setInput] = useState("");
     const [history, setHistory] = useState([
         { text: "AB-OS [Version 5.0.112]", type: "info" },
-        { text: "Type 'help' for a list of available commands.", type: "info" },
-        { text: "", type: "info" }
+        { text: "Type 'help' for a list of available commands.", type: "info" }
     ]);
     const scrollRef = useRef(null);
 
@@ -464,55 +498,30 @@ const Terminal = ({ onOpen }) => {
             switch (cmd) {
                 case 'help':
                     newHistory.push({ text: "AVAILABLE COMMANDS:", type: "info" });
-                    newHistory.push({ text: "> ABOUT - Open biography", type: "cmd" });
-                    newHistory.push({ text: "> PROJECTS - Open portfolio", type: "cmd" });
-                    newHistory.push({ text: "> RESUME - View CV", type: "cmd" });
-                    newHistory.push({ text: "> SNAKE - Launch entertainment", type: "cmd" });
-                    newHistory.push({ text: "> CONTACT - Open transmission form", type: "cmd" });
-                    newHistory.push({ text: "> THEMES - Cycle system colors", type: "cmd" });
-                    newHistory.push({ text: "> CLS - Clear terminal screen", type: "cmd" });
+                    newHistory.push({ text: "> ABOUT, PROJECTS, RESUME, SNAKE, CONTACT, CLS", type: "cmd" });
                     break;
-                case 'about':
-                case 'projects':
-                case 'resume':
-                case 'snake':
-                case 'contact':
-                    // Safe check for onOpen prop
-                    if (typeof onOpen === 'function') {
-                      onOpen(cmd); 
-                      newHistory.push({ text: `EXECUTING ${cmd.toUpperCase()}.EXE...`, type: "success" });
-                    } else {
-                      newHistory.push({ text: `SYSTEM ERROR: Unable to launch ${cmd}.EXE`, type: "error" });
-                    }
+                case 'cls': setHistory([]); setInput(""); return;
+                case 'about': case 'projects': case 'resume': case 'snake': case 'contact':
+                    if (onOpen) onOpen(cmd);
+                    newHistory.push({ text: `EXECUTING ${cmd.toUpperCase()}.EXE...`, type: "success" });
                     break;
-                case 'themes':
-                    newHistory.push({ text: "THEME CYCLE INITIATED. CLICK THEME ICON ON DESKTOP.", type: "info" });
-                    break;
-                case 'cls':
-                    setHistory([]); setInput(""); return;
-                case '': break;
                 default:
-                    newHistory.push({ text: `'${cmd}' is not recognized as an internal or external command.`, type: "error" });
+                    newHistory.push({ text: `'${cmd}' is not recognized.`, type: "error" });
             }
             setHistory(newHistory); setInput("");
         }
     };
 
     return (
-        <div className="flex flex-col h-full font-mono text-xs md:text-sm bg-black/50 p-2 rounded">
-            <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1 mb-2 scrollbar-hide">
+        <div className="flex flex-col h-full font-mono text-xs md:text-sm bg-black/50 p-2">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1 mb-2">
                 {history.map((line, i) => (
-                    <div key={i} className={`
-                        ${line.type === 'error' ? 'text-red-500' : ''}
-                        ${line.type === 'success' ? 'text-cyan-400' : ''}
-                        ${line.type === 'cmd' ? 'text-yellow-500 ml-2' : ''}
-                        ${line.type === 'info' ? 'text-green-500/80' : 'text-white'}
-                    `}>{line.text}</div>
+                    <div key={i} className={`${line.type === 'error' ? 'text-red-500' : line.type === 'success' ? 'text-cyan-400' : line.type === 'info' ? 'text-green-500/80' : 'text-white'}`}>{line.text}</div>
                 ))}
             </div>
             <div className="flex items-center gap-2 text-green-500 border-t border-green-500/20 pt-2">
-                <span className="shrink-0">C:\&gt;</span>
-                <input autoFocus type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 text-white uppercase" spellCheck="false" />
+                <span>C:\&gt;</span>
+                <input autoFocus type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 text-white uppercase" />
             </div>
         </div>
     );
@@ -522,34 +531,16 @@ const ResumePreview = () => (
     <div className="text-white space-y-6">
         <section>
             <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">EDUCATION</h2>
-            <div className="mb-2">
-                <p className="font-bold">Vellore Institute of Technology-AP</p>
-                <p className="text-xs text-white/60 italic">B.Tech in Computer Science and Engineering | 2023 - Present</p>
-                <p className="text-xs text-green-400">CGPA: 8.44 (Present)</p>
-            </div>
-            <div>
-                <p className="font-bold text-xs">Vidya Bharati Chinmaya Vidyalaya - CBSE</p>
-                <p className="text-[10px] text-white/40 italic">Higher Secondary (2022) | Secondary (2020)</p>
-            </div>
+            <p className="font-bold">Vellore Institute of Technology-AP</p>
+            <p className="text-xs text-white/60 italic">B.Tech in CSE | 2023 - Present (CGPA: 8.44)</p>
         </section>
-
         <section>
             <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">SKILLS</h2>
             <div className="flex flex-wrap gap-2 text-[10px]">
-                {["Java", "Python", "Development", "MathLab", "AI/DL", "Leadership", "OpenSource"].map(skill => (
+                {["Java", "Python", "React", "AI/DL", "OpenCV"].map(skill => (
                     <span key={skill} className="px-2 py-1 bg-white/10 border border-white/20">{skill}</span>
                 ))}
             </div>
-        </section>
-
-        <section>
-            <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">CERTIFICATIONS</h2>
-            <ul className="text-xs list-disc pl-4 space-y-1 opacity-80">
-                <li>Coursera Web Development</li>
-                <li>Oracle Generative AI Professional</li>
-                <li>HPC by IANEO</li>
-                <li>Engineer Clinics 2025 Finalist</li>
-            </ul>
         </section>
     </div>
 );
