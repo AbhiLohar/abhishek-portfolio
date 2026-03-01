@@ -4,13 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, X, Terminal as TerminalIcon, Download, 
   Palette, Briefcase, Minus,
-  Eye, Mail, Gamepad2, CloudSun
+  Eye, Mail, Gamepad2, CloudSun, Github, Linkedin // Added Github and Linkedin icons
 } from 'lucide-react';
 
 const userInfo = {
   name: "ABHISHEK LOHAR",
   fullName: "Abhishek Lohar",
-  bio: "HI, I am Abhishek.I am highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience in full-stack development and hardware-software integration.",
+  bio: "HI, I am Abhishek. I am highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience in full-stack development and hardware-software integration.",
+  socials: {
+    github: "https://github.com/AbhiLohar", // Replace with your actual GitHub link
+    linkedin: "https://linkedin.com/in/abhishek-lohar-216099350/" // Replace with your actual LinkedIn link
+  },
   projects: [
     { 
         title: "Real-Time Web Data Reader Extension", 
@@ -91,7 +95,7 @@ export default function App() {
   const [activeWindow, setActiveWindow] = useState('about');
   const [activeTheme, setActiveTheme] = useState('deepSea');
   const [startMenuOpen, setStartMenuOpen] = useState(false);
-  const [showTicker, setShowTicker] = useState(true); // DISMISS STATE
+  const [showTicker, setShowTicker] = useState(true); 
   const constraintsRef = useRef(null);
 
   useEffect(() => {
@@ -233,7 +237,6 @@ export default function App() {
         </button>
         
         <div className="flex-1 flex items-center gap-1 px-1 md:px-3 overflow-hidden h-full">
-          {/* Active Tabs */}
           <div className="flex gap-1 overflow-x-auto scrollbar-hide max-w-full">
             {openWindows.map(id => (
               <div key={id} onClick={() => toggleWindow(id)} 
@@ -243,7 +246,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* DYNAMIC DISMISSABLE TICKER */}
           <AnimatePresence>
             {showTicker && (
               <motion.div 
@@ -276,6 +278,7 @@ export default function App() {
   );
 }
 
+// --- UPDATED ABOUT CONTENT ---
 const AboutContent = () => {
     const [text, setText] = useState("");
     useEffect(() => {
@@ -291,10 +294,23 @@ const AboutContent = () => {
         <div className="space-y-4 md:space-y-6">
             <h2 className="text-3xl md:text-5xl font-black italic text-green-500 uppercase tracking-tighter">ABHISHEK LOHAR</h2>
             <p className="text-xs md:text-sm text-white/80 leading-relaxed border-l-2 border-green-500/30 pl-4 italic min-h-[80px]">{text}</p>
-            <div className="pt-4">
-                <button onClick={handleDownloadResume} className="flex items-center gap-2 bg-green-600 text-black px-6 py-3 text-[10px] font-black uppercase hover:bg-green-400 transition-all">
+            
+            <div className="flex flex-col gap-4 pt-4">
+                <button onClick={handleDownloadResume} className="flex items-center justify-center gap-2 bg-green-600 text-black px-6 py-3 text-[10px] font-black uppercase hover:bg-green-400 transition-all w-fit">
                     <Download size={14}/> Download Resume
                 </button>
+
+                {/* SOCIAL LINKS SECTION */}
+                <div className="flex gap-4 border-t border-white/10 pt-4">
+                    <a href={userInfo.socials.github} target="_blank" rel="noopener noreferrer" 
+                       className="flex items-center gap-2 text-[10px] text-white/60 hover:text-green-400 transition-colors uppercase font-bold">
+                        <Github size={14}/> GitHub.lnk
+                    </a>
+                    <a href={userInfo.socials.linkedin} target="_blank" rel="noopener noreferrer" 
+                       className="flex items-center gap-2 text-[10px] text-white/60 hover:text-green-400 transition-colors uppercase font-bold">
+                        <Linkedin size={14}/> LinkedIn.lnk
+                    </a>
+                </div>
             </div>
         </div>
     );
@@ -405,7 +421,6 @@ const ContactContent = () => {
     const userTemplateID = process.env.REACT_APP_EMAILJS_CONFIRMATION_TEMPLATE_ID;
     const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-    // Data package to send
     const templateParams = {
         name: formData.name,
         phone: formData.contact,
@@ -413,13 +428,8 @@ const ContactContent = () => {
     };
 
     try {
-        // This sends BOTH emails simultaneously
         await Promise.all([
-            // 1. Email to YOU
             emailjs.send(serviceID, adminTemplateID, templateParams, publicKey),
-            
-            // 2. Confirmation email to the USER (only works if they provided an email)
-            // We check if it looks like an email before trying to send
             formData.contact.includes('@') 
                 ? emailjs.send(serviceID, userTemplateID, templateParams, publicKey)
                 : Promise.resolve() 
@@ -534,7 +544,6 @@ const ResumePreview = () => (
             <div className="mb-2">
                 <p className="font-bold">Vellore Institute of Technology-AP</p>
                 <p className="text-xs text-white/60 italic">B.Tech in Computer Science and Engineering | 2023 - Present</p>
-                <p className="text-xs text-green-400">CGPA: 8.44 (Present)</p>
             </div>
             <div>
                 <p className="font-bold text-xs">Vidya Bharati Chinmaya Vidyalaya - CBSE</p>
@@ -545,7 +554,7 @@ const ResumePreview = () => (
         <section>
             <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">SKILLS</h2>
             <div className="flex flex-wrap gap-2 text-[10px]">
-                {["Java", "Python", "Development", "MathLab", "AI/DL", "Leadership", "OpenSource"].map(skill => (
+                {["Java", "Python", "Development", "MatLab", "AI/DL", "Leadership", "OpenSource"].map(skill => (
                     <span key={skill} className="px-2 py-1 bg-white/10 border border-white/20">{skill}</span>
                 ))}
             </div>
@@ -556,8 +565,8 @@ const ResumePreview = () => (
             <ul className="text-xs list-disc pl-4 space-y-1 opacity-80">
                 <li>Coursera Web Development</li>
                 <li>Oracle Generative AI Professional</li>
-                <li>HPC by IANEO</li>
-                <li>Engineer Clinics 2025 Finalist</li>
+                <li>HPC by IAMNEO</li>
+                <li>Engineering Clinics 2025 Finalist</li>
             </ul>
         </section>
     </div>
