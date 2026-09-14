@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders AB-OS BIOS screen', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const biosElement = screen.getByText(/AB-OS BIOS/i);
+  expect(biosElement).toBeInTheDocument();
 });

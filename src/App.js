@@ -4,44 +4,90 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, X, Terminal as TerminalIcon, Download, 
   Palette, Briefcase, Minus,
-  Eye, Mail, Gamepad2, CloudSun, Github, Linkedin // Added Github and Linkedin icons
+  Eye, Mail, Gamepad2, CloudSun, Github, Linkedin, FileText, ExternalLink
 } from 'lucide-react';
 
 const userInfo = {
   name: "ABHISHEK LOHAR",
   fullName: "Abhishek Lohar",
-  bio: "HI, I am Abhishek. I am highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience in full-stack development and hardware-software integration.",
+  location: "Jamshedpur, Jharkhand - 831004",
+  phone: "+91 9341852194",
+  emailCollege: "abhishek.23bce7356@vitapstudent.ac.in",
+  emailPersonal: "abhisheklohar0509@gmail.com",
+  bio: "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience in full-stack development and hardware-software integration.",
   socials: {
-    github: "https://github.com/AbhiLohar", // Replace with your actual GitHub link
-    linkedin: "https://linkedin.com/in/abhishek-lohar-216099350/" // Replace with your actual LinkedIn link
+    github: "https://github.com/AbhiLohar",
+    linkedin: "https://linkedin.com/in/abhishek-lohar-216099350/"
+  },
+  education: [
+    {
+      institution: "Vellore Institute of Technology-AP",
+      location: "Amaravati, AP",
+      degree: "B.Tech in Computer Science and Engineering",
+      period: "2023 – 2027",
+      grade: "Current CGPA: 8.33 / 10.0"
+    },
+    {
+      institution: "Vidya Bharati Chinmaya Vidyalaya (CBSE)",
+      location: "Jamshedpur, JH",
+      degree: "Higher Secondary Education (Class XII)",
+      period: "2022",
+      grade: "Aggregate: 79.8%"
+    }
+  ],
+  skills: {
+    languages: ["Java", "Python", "SQL", "C++", "HTML/CSS", "JavaScript"],
+    aiMl: ["Ollama", "LangChain", "ChromaDB", "RAG", "Embeddings", "LLMs", "OpenCV", "Data Science"],
+    toolsFrameworks: ["Raspberry Pi", "Chrome Extension API", "PyPI", "pytest", "Git", "OpenSource Development"],
+    softSkills: ["Leadership", "Creative Thinking", "Problem Solving"]
   },
   projects: [
     { 
-        title: "Real-Time Web Data Reader Extension", 
-        tech: "JavaScript, Chrome API, HTML/CSS", 
-        desc: "Developed a Chrome extension to parse and extract real-time data from active web pages. Optimized DOM manipulation for low-latency performance." 
+      title: "local-persona-memory — Published PyPI Package", 
+      tech: "Python, Ollama, ChromaDB, LangChain, RAG", 
+      badge: "pip install local-persona-memory",
+      link: "https://pypi.org/project/local-persona-memory/",
+      desc: "Published production-grade open-source Python package on PyPI — installable worldwide via pip install local-persona-memory — giving any local LLM permanent long-term memory with zero cloud dependency.",
+      details: "Built full RAG pipeline with ChromaDB vector storage, PDF ingestion, semantic search, conversation history, export/import, and callback hooks. Shipped with 160 passing tests and GitHub Actions CI/CD."
     },
     { 
-        title: "Autonomous AI Research Assistant", 
-        tech: "Python, Generative AI, NLP", 
-        desc: "Built a specialized AI agent capable of synthesizing complex research papers into structured summaries using LLMs." 
+      title: "URL Shortener & Analytics Platform", 
+      tech: "Python, FastAPI, PostgreSQL, Redis, Kafka", 
+      badge: "Microservices Architecture",
+      desc: "Built a microservices-based URL shortener with separate Shorten, Redirect, and Analytics services behind an API gateway to practice service decomposition.",
+      details: "Used PostgreSQL for persistent URL mappings and Redis caching in front of the Redirect service; Kafka streams click events asynchronously to Analytics."
     },
     { 
-        title: "Smart Attendance Face Recognition", 
-        tech: "Raspberry Pi, Python, OpenCV", 
-        desc: "Designed a hardware-integrated system for real-time biometric identification, achieving 95%+ recognition accuracy." 
+      title: "Smart Attendance Face Recognition System", 
+      tech: "Raspberry Pi, Python, OpenCV", 
+      badge: "Edge Hardware + CV",
+      desc: "Designed a hardware-software integrated biometric identification system using Raspberry Pi for real-time facial recognition and automated attendance logging.",
+      details: "Utilized OpenCV libraries for facial detection and recognition. Engineered an end-to-end pipeline from image capture to database logging, ensuring 95%+ recognition accuracy."
     }
+  ],
+  certifications: [
+    "Oracle Cloud Infrastructure (OCI) Certified AI Foundations Associate",
+    "Coursera Full Stack Web Development",
+    "Infosys Springboard — Introduction to Data Science (May 2026)",
+    "Hashgraph Developer Course",
+    "High-Performance Coding (HPC) Certification by IAMNEO",
+    "Finalist in Engineering Clinics (2025)",
+    "Hack2Skill GDG (Google Developer Groups) Hackathons at VIT-AP"
+  ],
+  languages: [
+    { name: "Hindi", proficiency: "Native" },
+    { name: "English", proficiency: "Professional" }
   ]
 };
 
 // --- TICKER DATA ---
 const statusMessages = [
+  "RESUME: NEW UPDATED TECH RESUME & GENERAL CV AVAILABLE FOR DOWNLOAD",
   "HINT: CLICK 'START' TO EXPLORE ALL SYSTEM APPS",
+  "PYPI: CHECK OUT 'local-persona-memory' PUBLISHED PACKAGE",
   "GUIDE: DRAG WINDOW TITLEBARS TO REARRANGE YOUR DESKTOP",
-  "DISCOVER: DOUBLE-CLICK ICONS TO LAUNCH EXE FILES",
-  "PRO TIP: USE THE MS-DOS TERMINAL FOR A CLI EXPERIENCE",
+  "PRO TIP: USE THE MS-DOS TERMINAL OR TYPE 'CV' / 'DOWNLOAD'",
   "INFO: CLICK THE PALETTE ICON TO TOGGLE SYSTEM THEMES",
-  "MISSION: CHECK 'PROJECTS.EXE' TO SEE MY LATEST WORK",
   "CONNECT: OPEN 'CONTACT.EXE' TO SEND AN ENCRYPTED MESSAGE"
 ];
 
@@ -55,6 +101,16 @@ const handleDownloadResume = () => {
   const link = document.createElement("a");
   link.href = resumeUrl;
   link.download = "Abhishek_Lohar_Resume.pdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const handleDownloadCV = () => {
+  const cvUrl = "/Abhishek_General_CV.pdf"; 
+  const link = document.createElement("a");
+  link.href = cvUrl;
+  link.download = "Abhishek_Lohar_General_CV.pdf";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -100,13 +156,18 @@ export default function App() {
 
   useEffect(() => {
     if (bootPhase === 0) {
+      const handleKeyDown = () => setBootPhase(1);
+      window.addEventListener('keydown', handleKeyDown);
       const interval = setInterval(() => {
         setLoadProgress(prev => {
           if (prev >= 100) { clearInterval(interval); setTimeout(() => setBootPhase(1), 1200); return 100; }
           return prev + 1;
         });
       }, 40);
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     }
   }, [bootPhase]);
 
@@ -146,7 +207,12 @@ export default function App() {
             <motion.div className="h-full bg-green-500 shadow-[0_0_15px_#22c55e]" style={{ width: `${loadProgress}%` }} />
           </div>
         </div>
-        <p className="text-xs text-white/50 tracking-[0.8em] text-center">INITIALIZING: {loadProgress}%</p>
+        <div className="flex justify-between items-center text-xs text-white/50 tracking-[0.3em] pt-2">
+          <span>INITIALIZING: {loadProgress}%</span>
+          <button onClick={() => setBootPhase(1)} className="hover:text-green-400 underline cursor-pointer normal-case tracking-normal text-[11px]">
+            [Click to skip]
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -154,11 +220,21 @@ export default function App() {
   if (bootPhase === 1) return (
     <div className="h-screen w-screen flex items-center justify-center font-mono p-4" style={{ backgroundColor: themes[activeTheme].bg }}>
       <div className="bg-black border-2 border-white/20 p-6 md:p-10 text-center shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full">
-        <h1 className="text-3xl md:text-4xl font-black text-green-500 mb-2 italic">{userInfo.name}</h1>
-        <p className="text-white/40 text-[10px] tracking-[0.4em] mb-12 uppercase">Authorized Access Only</p>
-        <div className="space-y-4">
-          <button onClick={() => setBootPhase(2)} className="w-full py-4 bg-green-600 text-black font-black uppercase text-xs hover:bg-green-400 active:scale-95 transition-all">Explore Portfolio</button>
-          <button onClick={handleDownloadResume} className="w-full py-4 border border-white/20 text-white font-bold uppercase text-xs hover:bg-white hover:text-black active:scale-95 transition-all">Download CV</button>
+        <h1 className="text-3xl md:text-4xl font-black text-green-500 mb-1 italic">{userInfo.name}</h1>
+        <p className="text-white/60 text-[10px] tracking-[0.2em] mb-1 uppercase">VIT-AP &bull; AI & Full-Stack</p>
+        <p className="text-white/40 text-[9px] tracking-[0.4em] mb-8 uppercase">Authorized Access Only</p>
+        <div className="space-y-3">
+          <button onClick={() => setBootPhase(2)} className="w-full py-3.5 bg-green-600 text-black font-black uppercase text-xs hover:bg-green-400 active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+            Explore Portfolio &rarr;
+          </button>
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <button onClick={handleDownloadResume} className="w-full py-2.5 border border-white/20 text-white font-bold uppercase text-[9px] hover:bg-white hover:text-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
+              <Download size={12} /> Tech Resume
+            </button>
+            <button onClick={handleDownloadCV} className="w-full py-2.5 border border-green-500/50 text-green-400 font-bold uppercase text-[9px] hover:bg-green-500 hover:text-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
+              <Download size={12} /> General CV
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -220,8 +296,12 @@ export default function App() {
               <div className="flex-1 py-1">
                 <StartItem icon={<User size={16}/>} label="About Me" onClick={() => toggleWindow('about')} />
                 <StartItem icon={<Briefcase size={16}/>} label="My Projects" onClick={() => toggleWindow('projects')} />
+                <StartItem icon={<Eye size={16}/>} label="Resume Preview" onClick={() => toggleWindow('resume')} />
                 <StartItem icon={<Gamepad2 size={16}/>} label="Entertainment" onClick={() => toggleWindow('snake')} />
                 <StartItem icon={<Mail size={16}/>} label="Contact" onClick={() => toggleWindow('contact')} />
+                <div className="h-[1px] bg-gray-500 my-2 mx-1 shadow-sm" />
+                <StartItem icon={<FileText size={16}/>} label="Download Tech Resume" onClick={handleDownloadResume} />
+                <StartItem icon={<Download size={16}/>} label="Download General CV" onClick={handleDownloadCV} />
                 <div className="h-[1px] bg-gray-500 my-2 mx-1 shadow-sm" />
                 <StartItem icon={<TerminalIcon size={16}/>} label="MS-DOS Terminal" onClick={() => toggleWindow('terminal')} />
               </div>
@@ -286,22 +366,50 @@ const AboutContent = () => {
         const interval = setInterval(() => {
             setText(userInfo.bio.substring(0, i));
             i++; if (i > userInfo.bio.length) clearInterval(interval);
-        }, 15);
+        }, 12);
         return () => clearInterval(interval);
     }, []);
 
     return (
         <div className="space-y-4 md:space-y-6">
-            <h2 className="text-3xl md:text-5xl font-black italic text-green-500 uppercase tracking-tighter">ABHISHEK LOHAR</h2>
-            <p className="text-xs md:text-sm text-white/80 leading-relaxed border-l-2 border-green-500/30 pl-4 italic min-h-[80px]">{text}</p>
+            <div>
+              <h2 className="text-3xl md:text-5xl font-black italic text-green-500 uppercase tracking-tighter">ABHISHEK LOHAR</h2>
+              <div className="text-[10px] md:text-xs text-white/50 font-bold uppercase tracking-wider mt-1">
+                VIT-AP UNIVERSITY &bull; B.TECH CSE (CGPA: 8.33) &bull; AI/ML & FULL-STACK
+              </div>
+            </div>
+
+            <p className="text-xs md:text-sm text-white/80 leading-relaxed border-l-2 border-green-500/30 pl-4 italic min-h-[70px]">{text}</p>
             
-            <div className="flex flex-col gap-4 pt-4">
-                <button onClick={handleDownloadResume} className="flex items-center justify-center gap-2 bg-green-600 text-black px-6 py-3 text-[10px] font-black uppercase hover:bg-green-400 transition-all w-fit">
-                    <Download size={14}/> Download Resume
-                </button>
+            {/* CONTACT CARDS */}
+            <div className="bg-white/5 border border-white/10 p-3 space-y-1.5 text-[10px]">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-green-400 font-bold uppercase">Personal Email:</span>
+                <a href={`mailto:${userInfo.emailPersonal}`} className="text-white/80 hover:text-green-300 underline">{userInfo.emailPersonal}</a>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-green-400 font-bold uppercase">Campus Email:</span>
+                <a href={`mailto:${userInfo.emailCollege}`} className="text-white/80 hover:text-green-300 underline">{userInfo.emailCollege}</a>
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-white/60 pt-1 border-t border-white/5">
+                <span><b>Phone:</b> {userInfo.phone}</span>
+                <span><b>Location:</b> {userInfo.location}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 pt-1">
+                {/* DUAL DOWNLOAD BUTTONS */}
+                <div className="flex flex-wrap gap-2.5">
+                  <button onClick={handleDownloadResume} className="flex items-center justify-center gap-2 bg-green-600 text-black px-4 py-2.5 text-[10px] font-black uppercase hover:bg-green-400 transition-all">
+                      <Download size={13}/> Download Tech Resume (PDF)
+                  </button>
+                  <button onClick={handleDownloadCV} className="flex items-center justify-center gap-2 border border-green-500 text-green-400 px-4 py-2.5 text-[10px] font-black uppercase hover:bg-green-500 hover:text-black transition-all">
+                      <Download size={13}/> Download General CV (PDF)
+                  </button>
+                </div>
 
                 {/* SOCIAL LINKS SECTION */}
-                <div className="flex gap-4 border-t border-white/10 pt-4">
+                <div className="flex flex-wrap gap-4 border-t border-white/10 pt-4">
                     <a href={userInfo.socials.github} target="_blank" rel="noopener noreferrer" 
                        className="flex items-center gap-2 text-[10px] text-white/60 hover:text-green-400 transition-colors uppercase font-bold">
                         <Github size={14}/> GitHub.lnk
@@ -309,6 +417,10 @@ const AboutContent = () => {
                     <a href={userInfo.socials.linkedin} target="_blank" rel="noopener noreferrer" 
                        className="flex items-center gap-2 text-[10px] text-white/60 hover:text-green-400 transition-colors uppercase font-bold">
                         <Linkedin size={14}/> LinkedIn.lnk
+                    </a>
+                    <a href="https://pypi.org/project/local-persona-memory/" target="_blank" rel="noopener noreferrer" 
+                       className="flex items-center gap-2 text-[10px] text-white/60 hover:text-cyan-400 transition-colors uppercase font-bold">
+                        <ExternalLink size={14}/> PyPI Package.lnk
                     </a>
                 </div>
             </div>
@@ -387,10 +499,31 @@ const StartItem = ({ icon, label, onClick }) => (
 const ProjectList = () => (
     <div className="space-y-4">
         {userInfo.projects.map((p, i) => (
-            <div key={i} className="border border-white/10 bg-white/5 p-4 hover:border-green-500 transition-all cursor-pointer">
-                <h3 className="text-green-400 font-bold uppercase text-xs mb-1">{p.title}</h3>
-                <p className="text-[10px] text-white/60">{p.desc}</p>
-                <div className="text-[8px] text-green-300/50 font-bold mt-2 uppercase tracking-widest">[{p.tech}]</div>
+            <div key={i} className="border border-white/10 bg-white/5 p-4 hover:border-green-500 transition-all">
+                <div className="flex flex-wrap justify-between items-start gap-2 mb-1.5">
+                  <h3 className="text-green-400 font-bold uppercase text-xs md:text-sm">{p.title}</h3>
+                  {p.badge && (
+                    <span className="text-[9px] bg-green-500/10 text-green-300 px-2 py-0.5 border border-green-500/30 font-mono tracking-wider">
+                      {p.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] md:text-xs text-white/80 leading-relaxed mb-2">{p.desc}</p>
+                {p.details && (
+                  <p className="text-[9px] md:text-[10px] text-green-400/80 italic mb-2 border-l border-green-500/30 pl-2">
+                    {p.details}
+                  </p>
+                )}
+                <div className="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-white/10">
+                  <div className="text-[8px] md:text-[9px] text-green-300/60 font-bold uppercase tracking-widest">
+                    [{p.tech}]
+                  </div>
+                  {p.link && (
+                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[9px] text-cyan-400 hover:text-cyan-300 uppercase font-bold">
+                      <ExternalLink size={10} /> View on PyPI
+                    </a>
+                  )}
+                </div>
             </div>
         ))}
     </div>
@@ -508,15 +641,24 @@ const Terminal = ({ onOpen }) => {
             switch (cmd) {
                 case 'help':
                     newHistory.push({ text: "AVAILABLE COMMANDS:", type: "info" });
-                    newHistory.push({ text: "> ABOUT, PROJECTS, RESUME, SNAKE, CONTACT, CLS", type: "cmd" });
+                    newHistory.push({ text: "> ABOUT, PROJECTS, RESUME, CV, DOWNLOAD, SNAKE, CONTACT, CLS", type: "cmd" });
+                    newHistory.push({ text: "> TIP: Type 'CV' or 'DOWNLOAD' to download PDF documents directly.", type: "info" });
                     break;
                 case 'cls': setHistory([]); setInput(""); return;
                 case 'about': case 'projects': case 'resume': case 'snake': case 'contact':
                     if (onOpen) onOpen(cmd);
                     newHistory.push({ text: `EXECUTING ${cmd.toUpperCase()}.EXE...`, type: "success" });
                     break;
+                case 'cv':
+                    handleDownloadCV();
+                    newHistory.push({ text: "DOWNLOADING GENERAL CV (PDF)... OK", type: "success" });
+                    break;
+                case 'download':
+                    handleDownloadResume();
+                    newHistory.push({ text: "DOWNLOADING TECHNICAL RESUME (PDF)... OK", type: "success" });
+                    break;
                 default:
-                    newHistory.push({ text: `'${cmd}' is not recognized.`, type: "error" });
+                    newHistory.push({ text: `'${cmd}' is not recognized. Type 'help' for commands.`, type: "error" });
             }
             setHistory(newHistory); setInput("");
         }
@@ -539,35 +681,115 @@ const Terminal = ({ onOpen }) => {
 
 const ResumePreview = () => (
     <div className="text-white space-y-6">
+        {/* Quick Download Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/5 border border-green-500/30">
+          <div>
+            <div className="text-xs font-black text-green-400 uppercase tracking-wider">Download Verified Documents</div>
+            <div className="text-[9px] text-white/50">ATS-compliant PDF formats matching updated resume & industry CV</div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={handleDownloadResume} className="flex items-center gap-1.5 bg-green-600 text-black px-3 py-1.5 text-[9px] font-black uppercase hover:bg-green-400 active:scale-95 transition-all">
+              <Download size={12} /> Tech Resume
+            </button>
+            <button onClick={handleDownloadCV} className="flex items-center gap-1.5 border border-green-500 text-green-400 px-3 py-1.5 text-[9px] font-black uppercase hover:bg-green-500 hover:text-black active:scale-95 transition-all">
+              <Download size={12} /> General CV
+            </button>
+          </div>
+        </div>
+
+        {/* Education */}
         <section>
-            <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">EDUCATION</h2>
-            <div className="mb-2">
-                <p className="font-bold">Vellore Institute of Technology-AP</p>
-                <p className="text-xs text-white/60 italic">B.Tech in Computer Science and Engineering | 2023 - Present</p>
-            </div>
-            <div>
-                <p className="font-bold text-xs">Vidya Bharati Chinmaya Vidyalaya - CBSE</p>
-                <p className="text-[10px] text-white/40 italic">Higher Secondary (2022) | Secondary (2020)</p>
+            <h2 className="text-green-500 font-black text-lg border-b border-white/20 mb-3 flex items-center justify-between">
+              <span>EDUCATION</span>
+              <span className="text-[10px] text-white/40 font-normal">VIT-AP UNIVERSITY</span>
+            </h2>
+            <div className="space-y-3">
+              {userInfo.education.map((edu, i) => (
+                <div key={i} className="border-l-2 border-green-500/40 pl-3">
+                  <div className="flex justify-between items-baseline">
+                    <p className="font-bold text-xs text-white">{edu.institution}</p>
+                    <span className="text-[9px] text-white/50">{edu.period}</span>
+                  </div>
+                  <p className="text-[10px] text-white/70 italic">{edu.degree} &bull; {edu.location}</p>
+                  <p className="text-[10px] text-green-400 font-bold mt-0.5">{edu.grade}</p>
+                </div>
+              ))}
             </div>
         </section>
 
+        {/* Technical Skills */}
         <section>
-            <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">SKILLS</h2>
-            <div className="flex flex-wrap gap-2 text-[10px]">
-                {["Java", "Python", "Development", "MatLab", "AI/DL", "Leadership", "OpenSource"].map(skill => (
-                    <span key={skill} className="px-2 py-1 bg-white/10 border border-white/20">{skill}</span>
+            <h2 className="text-green-500 font-black text-lg border-b border-white/20 mb-3">TECHNICAL SKILLS</h2>
+            <div className="space-y-2.5 text-[10px]">
+              <div>
+                <span className="text-green-400 font-bold uppercase">Languages: </span>
+                <span className="text-white/90">{userInfo.skills.languages.join(", ")}</span>
+              </div>
+              <div>
+                <span className="text-green-400 font-bold uppercase">AI/ML Stack: </span>
+                <span className="text-white/90">{userInfo.skills.aiMl.join(", ")}</span>
+              </div>
+              <div>
+                <span className="text-green-400 font-bold uppercase">Tools & Frameworks: </span>
+                <span className="text-white/90">{userInfo.skills.toolsFrameworks.join(", ")}</span>
+              </div>
+              <div>
+                <span className="text-green-400 font-bold uppercase">Soft Skills: </span>
+                <span className="text-white/90">{userInfo.skills.softSkills.join(", ")}</span>
+              </div>
+            </div>
+        </section>
+
+        {/* Key Projects */}
+        <section>
+            <h2 className="text-green-500 font-black text-lg border-b border-white/20 mb-3">FEATURED PROJECTS</h2>
+            <div className="space-y-2.5">
+              {userInfo.projects.map((p, i) => (
+                <div key={i} className="text-[10px] bg-white/5 p-3 border border-white/10">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold text-green-300 uppercase text-xs">{p.title}</span>
+                    <span className="text-[8px] text-white/40 uppercase">[{p.tech}]</span>
+                  </div>
+                  <p className="text-white/70 text-[9px] leading-relaxed mb-1">{p.desc}</p>
+                  {p.details && <p className="text-green-400/80 text-[8px] italic">{p.details}</p>}
+                </div>
+              ))}
+            </div>
+        </section>
+
+        {/* Certifications & Achievements */}
+        <section>
+            <h2 className="text-green-500 font-black text-lg border-b border-white/20 mb-3">CERTIFICATIONS & ACHIEVEMENTS</h2>
+            <ul className="text-[10px] list-disc pl-4 space-y-1.5 opacity-85">
+                {userInfo.certifications.map((c, i) => (
+                  <li key={i} className="leading-relaxed">{c}</li>
                 ))}
-            </div>
-        </section>
-
-        <section>
-            <h2 className="text-green-500 font-black text-xl border-b border-white/20 mb-2">CERTIFICATIONS</h2>
-            <ul className="text-xs list-disc pl-4 space-y-1 opacity-80">
-                <li>Coursera Web Development</li>
-                <li>Oracle Generative AI Professional</li>
-                <li>HPC by IAMNEO</li>
-                <li>Engineering Clinics 2025 Finalist</li>
             </ul>
         </section>
+
+        {/* Languages */}
+        <section>
+            <h2 className="text-green-500 font-black text-lg border-b border-white/20 mb-3">LANGUAGES</h2>
+            <div className="flex gap-4 text-[10px]">
+              {userInfo.languages.map((l, i) => (
+                <span key={i} className="px-3 py-1 bg-white/10 border border-white/20 text-white/90">
+                  <b className="text-green-400">{l.name}</b> ({l.proficiency})
+                </span>
+              ))}
+            </div>
+        </section>
+
+        {/* Bottom Download Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-white/10">
+          <span className="text-[9px] text-white/40">Abhishek Lohar &bull; Updated Curriculum Vitae</span>
+          <div className="flex gap-2">
+            <button onClick={handleDownloadResume} className="bg-green-600 text-black px-3 py-1.5 text-[9px] font-black uppercase hover:bg-green-400 transition-all flex items-center gap-1">
+              <Download size={11} /> Tech Resume
+            </button>
+            <button onClick={handleDownloadCV} className="border border-green-500 text-green-400 px-3 py-1.5 text-[9px] font-black uppercase hover:bg-green-500 hover:text-black transition-all flex items-center gap-1">
+              <Download size={11} /> General CV
+            </button>
+          </div>
+        </div>
     </div>
 );
