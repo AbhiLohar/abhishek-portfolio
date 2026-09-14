@@ -13,11 +13,18 @@
 
 ## 🌟 Features
 
+- **🌌 MotionSites AI-Inspired 3D Spatial Backgrounds**: High-performance 60 FPS HTML5 3D projection engine inspired by [MotionSites AI](https://motionsites.ai/) design aesthetics:
+  - **`neural` (Digital Epoch / Synapse)**: 3D connected AI nodes and pulsing axon synapses with interactive mouse parallax.
+  - **`grid` (Aetheris Cyber Horizon)**: Undulating Tron-style perspective wireframe mesh with horizon glow.
+  - **`matrix` (Volumetric Digital Reality)**: Multi-depth green data stream raining in 3D coordinate space.
+  - **Click Shockwave Physics**: Clicking anywhere triggers an expanding 3D impulse wave that repels vertices.
+  - **Frosted Glassmorphism**: Window frames feature translucent `backdrop-blur` glass panels revealing the 3D space beneath.
+  - **Live Switcher**: Toggle easily via Taskbar System Tray (`[3D: MODE]`), Desktop Right-Click Context Menu, or Terminal (`3d neural | grid | matrix | off`).
 - **⚡ BIOS Boot Diagnostics & Instant Skip**: Authentic memory tests, NVMe drive detection, and authorization screen with a 1-click `[Click to skip]` option.
 - **🔊 8-Bit Web Audio Synthesizer**: Native in-browser synthesized sound effects (boot chime, window open/close whooshes, click blips, arcade snake chimes) with a quick mute toggle `[🔊/🔇]` in the taskbar.
 - **📺 CRT Monitor & Scanline Overlay**: Toggleable vintage cathode-ray tube screen curvature, phosphor scanlines, and bloom effects `[CRT ON/OFF]`.
 - **🗖 Window Manager with Maximize/Restore**: Draggable, minimizable, and maximizable windows. Double-clicking any window titlebar toggles fullscreen maximize!
-- **🖱️ Desktop Right-Click Context Menu**: Right-clicking the desktop opens a retro OS menu to switch themes, toggle CRT, toggle audio, or quickly launch tools.
+- **🖱️ Desktop Right-Click Context Menu**: Right-clicking the desktop opens a retro OS menu to switch themes, toggle CRT, toggle audio, toggle 3D spatial canvas, or quickly launch tools.
 - **🖥️ System Diagnostics & Neofetch (`SysInfo.exe`)**: Live animated CPU load and RAM gauges, real-time session uptime counter, system architecture specs, and ASCII logo.
 - **🎵 Retro Media Player (`RetroPlayer.exe`)**: WinAmp-inspired media player featuring an 8-column animated audio equalizer and ambient 8-bit chip-tune melodies.
 - **📝 Notepad (`Notepad.exe`)**: Classic text editor with menu bar, preloaded with `README.TXT` and a persistent `SCRATCHPAD.TXT` that saves notes to `localStorage`.
@@ -29,7 +36,7 @@
   - **`local-persona-memory`** — Published open-source Python package on PyPI (`pip install local-persona-memory`) giving local LLMs long-term memory with ChromaDB, RAG, and 160 passing tests.
   - **`URL Shortener & Analytics Platform`** — Microservices backend built with FastAPI, Redis caching, Apache Kafka event streaming, and PostgreSQL.
   - **`Smart Attendance Face Recognition System`** — Edge biometric attendance appliance utilizing Raspberry Pi and OpenCV computer vision.
-- **💻 MS-DOS Command-Line Terminal**: Expanded simulated shell supporting `help`, `neofetch`, `matrix`, `date`, `whoami`, `beep`, `about`, `projects`, `resume`, `cv`, `download`, `snake`, `contact`, and `cls`.
+- **💻 MS-DOS Command-Line Terminal**: Expanded simulated shell supporting `help`, `3d`, `neofetch`, `matrix`, `date`, `whoami`, `beep`, `about`, `projects`, `resume`, `cv`, `download`, `snake`, `contact`, and `cls`.
 - **🎨 4 Retro Themes**: Instant palette toggling between **Deep Sea**, **Matrix Terminal**, **Cyberpunk Amber**, and **Windows 95 Classic Silver/Teal**.
 - **📬 Secure Transmission Contact Form**: Integrated with EmailJS for automated messaging and sender confirmations.
 
@@ -61,12 +68,14 @@ abhishek-portfolio/
 ├── scripts/
 │   └── generate_resumes.py       # Python script using ReportLab to build both PDFs
 ├── src/
+│   ├── components/
+│   │   └── ThreeDBackground.jsx  # MotionSites-inspired 60 FPS 3D spatial projection engine
 │   ├── utils/
 │   │   └── audio.js              # Web Audio API 8-bit sound effects & chip-tune synth
 │   ├── App.css
 │   ├── App.js                   # Main AB-OS Desktop Shell, Apps & Window System
 │   ├── App.test.js              # Test suite
-│   ├── index.css                # Global styles, CRT scanlines & retro scrollbars
+│   ├── index.css                # Global styles, CRT scanlines, glassmorphism & retro scrollbars
 │   └── index.js
 ├── .env.example                 # Template for environment variables
 ├── .gitignore                   # Ignores sensitive keys & build artifacts

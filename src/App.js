@@ -9,6 +9,7 @@ import {
   Sparkles, Check, ArrowUp, ArrowDown, ArrowLeft, ArrowRight
 } from 'lucide-react';
 import { soundFx } from './utils/audio';
+import ThreeDBackground from './components/ThreeDBackground';
 
 const userInfo = {
   name: "ABHISHEK LOHAR",
@@ -162,6 +163,7 @@ export default function App() {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [showTicker, setShowTicker] = useState(true); 
   const [crtEnabled, setCrtEnabled] = useState(true);
+  const [threeDMode, setThreeDMode] = useState('neural');
   const [isMuted, setIsMuted] = useState(false);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -315,6 +317,9 @@ export default function App() {
       className={`h-screen w-screen overflow-hidden relative font-mono select-none ${crtEnabled ? 'crt-overlay' : ''}`} 
       style={{ backgroundColor: themes[activeTheme].bg }}
     >
+      {/* 3D SPATIAL BACKGROUND (MOTIONSITES AI ENGINE) */}
+      <ThreeDBackground mode={threeDMode} accentColor={themes[activeTheme].border} />
+
       {/* DESKTOP ICONS GRID */}
       <div className="absolute left-4 top-4 md:left-6 md:top-6 grid grid-cols-2 md:grid-cols-1 gap-x-4 gap-y-5 md:gap-y-7 z-10 overflow-y-auto max-h-[85vh] p-1">
         <DesktopIcon theme={themes[activeTheme]} icon={<User />} label="About" onClick={() => toggleWindow('about')} />
@@ -373,7 +378,7 @@ export default function App() {
                 {id === 'notepad' && <NotepadApp />}
                 {id === 'snake' && <SnakeGame />}
                 {id === 'contact' && <ContactContent />}
-                {id === 'terminal' && <Terminal onOpen={toggleWindow} />}
+                {id === 'terminal' && <Terminal onOpen={toggleWindow} onSet3DMode={setThreeDMode} />}
               </Window>
             </motion.div>
           ))}
@@ -388,10 +393,16 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.1 }}
-            style={{ top: Math.min(contextMenu.y, window.innerHeight - 240), left: Math.min(contextMenu.x, window.innerWidth - 200) }}
-            className="fixed w-48 bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 p-1 z-[500] text-black shadow-2xl font-mono text-[11px]"
+            style={{ top: Math.min(contextMenu.y, window.innerHeight - 260), left: Math.min(contextMenu.x, window.innerWidth - 220) }}
+            className="fixed w-52 bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 p-1 z-[500] text-black shadow-2xl font-mono text-[11px]"
           >
             <div className="py-1">
+              <ContextMenuItem icon={<Sparkles size={14}/>} label={`3D Canvas: ${threeDMode.toUpperCase()}`} onClick={() => {
+                soundFx.playClick();
+                const modes = ['neural', 'grid', 'matrix', 'off'];
+                const nextIndex = (modes.indexOf(threeDMode) + 1) % modes.length;
+                setThreeDMode(modes[nextIndex]);
+              }} />
               <ContextMenuItem icon={<Palette size={14}/>} label={`Theme: ${themes[activeTheme].label.split(' ')[0]}`} onClick={cycleTheme} />
               <ContextMenuItem icon={<Monitor size={14}/>} label={`CRT Filter: ${crtEnabled ? 'ON' : 'OFF'}`} onClick={() => setCrtEnabled(!crtEnabled)} />
               <ContextMenuItem icon={isMuted ? <VolumeX size={14}/> : <Volume2 size={14}/>} label={`Sound FX: ${isMuted ? 'OFF' : 'ON'}`} onClick={toggleAudioMute} />
@@ -496,8 +507,22 @@ export default function App() {
           </AnimatePresence>
         </div>
 
-        {/* SYSTEM TRAY (CRT, AUDIO, WEATHER, CLOCK) */}
+        {/* SYSTEM TRAY (3D, CRT, AUDIO, WEATHER, CLOCK) */}
         <div className="bg-[#C0C0C0] border-2 border-gray-600 border-r-white border-b-white px-2 md:px-3 py-1 text-black text-[9px] md:text-[10px] font-bold flex items-center gap-2 whitespace-nowrap shrink-0 shadow-inner">
+          {/* 3D MODE BUTTON (MOTIONSITES STYLE) */}
+          <button 
+            onClick={() => {
+              soundFx.playClick();
+              const modes = ['neural', 'grid', 'matrix', 'off'];
+              const nextIndex = (modes.indexOf(threeDMode) + 1) % modes.length;
+              setThreeDMode(modes[nextIndex]);
+            }}
+            title="Switch 3D Spatial Canvas (Neural Mesh / Cyber Horizon / Matrix / Off)"
+            className="px-1.5 py-0.5 border text-[8px] font-bold uppercase cursor-pointer transition-all bg-black/80 text-green-400 border-green-500/50 hover:bg-green-600 hover:text-black shadow-sm"
+          >
+            3D: {threeDMode.toUpperCase()}
+          </button>
+
           {/* CRT TOGGLE BUTTON */}
           <button 
             onClick={() => { soundFx.playClick(); setCrtEnabled(!crtEnabled); }}
@@ -583,7 +608,7 @@ const StartItem = ({ icon, label, onClick }) => (
 function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
   return (
     <div 
-      className={`bg-[#0c0c0c] border-2 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] overflow-hidden ${
+      className={`glass-window border-2 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.85)] overflow-hidden ${
         isMaximized ? 'h-full w-full' : 'h-[75vh] md:h-[530px]'
       }`} 
       style={{ 
@@ -1352,7 +1377,7 @@ const ContactContent = () => {
 };
 
 // --- MS-DOS TERMINAL APP ---
-const Terminal = ({ onOpen }) => {
+const Terminal = ({ onOpen, onSet3DMode }) => {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState([
     { text: "AB-OS [Version 5.1.028] (C) 2026 Abhishek Lohar", type: "info" },
@@ -1371,6 +1396,20 @@ const Terminal = ({ onOpen }) => {
       const cmd = rawCmd.toLowerCase();
       const newHistory = [...history, { text: `C:\\USERS\\ABHISHEK> ${input}`, type: "user" }];
 
+      if (cmd === '3d' || cmd.startsWith('3d ')) {
+        const parts = cmd.split(/\s+/);
+        if (parts.length > 1 && ['neural', 'grid', 'matrix', 'off'].includes(parts[1])) {
+          if (onSet3DMode) onSet3DMode(parts[1]);
+          newHistory.push({ text: `3D SPATIAL BACKGROUND SET TO: [${parts[1].toUpperCase()}]`, type: "success" });
+        } else {
+          newHistory.push({ text: "USAGE: 3D [neural | grid | matrix | off]", type: "info" });
+          newHistory.push({ text: "CURRENT MODES: neural (AI Synapse), grid (Cyber Horizon), matrix (Volumetric Rain), off", type: "info" });
+        }
+        setHistory(newHistory);
+        setInput("");
+        return;
+      }
+
       switch (cmd) {
         case 'help':
           newHistory.push({ text: "=== AB-OS CLI COMMANDS ===", type: "info" });
@@ -1382,6 +1421,7 @@ const Terminal = ({ onOpen }) => {
           newHistory.push({ text: "> NOTEPAD    : Launch text editor / scratchpad", type: "cmd" });
           newHistory.push({ text: "> SNAKE      : Play Arcade Snake Game", type: "cmd" });
           newHistory.push({ text: "> CONTACT    : Transmit encrypted message", type: "cmd" });
+          newHistory.push({ text: "> 3D [MODE]  : Set 3D background (neural/grid/matrix/off)", type: "cmd" });
           newHistory.push({ text: "> NEOFTECH   : Display ASCII system badge", type: "cmd" });
           newHistory.push({ text: "> CV         : Download General Company CV (PDF)", type: "cmd" });
           newHistory.push({ text: "> DOWNLOAD   : Download Technical Resume (PDF)", type: "cmd" });
