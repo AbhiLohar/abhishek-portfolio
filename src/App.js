@@ -168,6 +168,31 @@ export default function App() {
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
   const constraintsRef = useRef(null);
+  const startMenuRef = useRef(null);
+  const startButtonRef = useRef(null);
+
+  // Close Start Menu on outside click
+  useEffect(() => {
+    if (!startMenuOpen) return;
+
+    const handleOutsideClick = (e) => {
+      if (
+        startMenuRef.current && 
+        !startMenuRef.current.contains(e.target) &&
+        startButtonRef.current && 
+        !startButtonRef.current.contains(e.target)
+      ) {
+        setStartMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [startMenuOpen]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -234,8 +259,9 @@ export default function App() {
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY });
   };
 
-  const closeContextMenu = () => {
+  const handleDesktopClick = () => {
     if (contextMenu.visible) setContextMenu({ visible: false, x: 0, y: 0 });
+    if (startMenuOpen) setStartMenuOpen(false);
   };
 
   const cycleTheme = () => {
@@ -312,7 +338,7 @@ export default function App() {
   return (
     <div 
       ref={constraintsRef} 
-      onClick={closeContextMenu}
+      onClick={handleDesktopClick}
       onContextMenu={handleContextMenu}
       className={`h-screen w-screen overflow-hidden relative font-mono select-none ${crtEnabled ? 'crt-overlay' : ''}`} 
       style={{ backgroundColor: themes[activeTheme].bg }}
@@ -394,7 +420,7 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.1 }}
             style={{ top: Math.min(contextMenu.y, window.innerHeight - 260), left: Math.min(contextMenu.x, window.innerWidth - 220) }}
-            className="fixed w-52 bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 p-1 z-[500] text-black shadow-2xl font-mono text-[11px]"
+            className="fixed w-52 bg-white/95 backdrop-blur-md border-2 border-white/90 shadow-2xl rounded-sm p-1 z-[500] text-slate-900 font-mono text-[11px]"
           >
             <div className="py-1">
               <ContextMenuItem icon={<Sparkles size={14}/>} label={`3D Canvas: ${threeDMode.toUpperCase()}`} onClick={() => {
@@ -406,10 +432,10 @@ export default function App() {
               <ContextMenuItem icon={<Palette size={14}/>} label={`Theme: ${themes[activeTheme].label.split(' ')[0]}`} onClick={cycleTheme} />
               <ContextMenuItem icon={<Monitor size={14}/>} label={`CRT Filter: ${crtEnabled ? 'ON' : 'OFF'}`} onClick={() => setCrtEnabled(!crtEnabled)} />
               <ContextMenuItem icon={isMuted ? <VolumeX size={14}/> : <Volume2 size={14}/>} label={`Sound FX: ${isMuted ? 'OFF' : 'ON'}`} onClick={toggleAudioMute} />
-              <div className="h-[1px] bg-gray-500 my-1 mx-1" />
+              <div className="h-[1px] bg-slate-200 my-1 mx-1" />
               <ContextMenuItem icon={<Cpu size={14}/>} label="System Info" onClick={() => toggleWindow('sysinfo')} />
               <ContextMenuItem icon={<TerminalIcon size={14}/>} label="MS-DOS Prompt" onClick={() => toggleWindow('terminal')} />
-              <div className="h-[1px] bg-gray-500 my-1 mx-1" />
+              <div className="h-[1px] bg-slate-200 my-1 mx-1" />
               <ContextMenuItem icon={<Download size={14}/>} label="Download Tech Resume" onClick={handleDownloadResume} />
               <ContextMenuItem icon={<FileText size={14}/>} label="Download General CV" onClick={handleDownloadCV} />
             </div>
@@ -421,29 +447,30 @@ export default function App() {
       <AnimatePresence>
         {startMenuOpen && (
           <motion.div 
+            ref={startMenuRef}
             initial={{ y: 50, opacity: 0 }} 
             animate={{ y: 0, opacity: 1 }} 
             exit={{ y: 50, opacity: 0 }} 
-            className="absolute bottom-11 left-1 w-72 bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 p-1 z-[300] text-black shadow-2xl"
+            className="absolute bottom-11 left-1 w-76 bg-white/95 backdrop-blur-md border-2 border-white shadow-[0_15px_50px_rgba(0,0,0,0.5)] p-1 z-[300] text-slate-900 rounded-sm overflow-hidden"
           >
             <div className="flex">
-              <div className="bg-[#000080] w-9 flex items-center justify-center [writing-mode:vertical-lr] rotate-180 text-white font-bold py-6 text-xs uppercase tracking-widest">
-                AB-OS 5.1
+              <div className="bg-gradient-to-t from-blue-600 via-indigo-600 to-cyan-400 w-9 flex items-center justify-center [writing-mode:vertical-lr] rotate-180 text-white font-black py-6 text-xs uppercase tracking-widest shadow-inner select-none">
+                AB-OS 5.2
               </div>
-              <div className="flex-1 py-1">
-                <StartItem icon={<User size={15}/>} label="About Me" onClick={() => toggleWindow('about')} />
-                <StartItem icon={<Briefcase size={15}/>} label="My Projects" onClick={() => toggleWindow('projects')} />
-                <StartItem icon={<Eye size={15}/>} label="Resume Preview" onClick={() => toggleWindow('resume')} />
-                <StartItem icon={<Cpu size={15}/>} label="System Diagnostics" onClick={() => toggleWindow('sysinfo')} />
-                <StartItem icon={<Music size={15}/>} label="Retro Media Player" onClick={() => toggleWindow('player')} />
-                <StartItem icon={<FileEdit size={15}/>} label="Notepad (Scratchpad)" onClick={() => toggleWindow('notepad')} />
-                <StartItem icon={<Gamepad2 size={15}/>} label="Arcade: Snake.exe" onClick={() => toggleWindow('snake')} />
-                <StartItem icon={<Mail size={15}/>} label="Contact Transmitter" onClick={() => toggleWindow('contact')} />
-                <div className="h-[1px] bg-gray-500 my-1.5 mx-1" />
-                <StartItem icon={<FileText size={15}/>} label="Download Tech Resume" onClick={handleDownloadResume} />
-                <StartItem icon={<Download size={15}/>} label="Download General CV" onClick={handleDownloadCV} />
-                <div className="h-[1px] bg-gray-500 my-1.5 mx-1" />
-                <StartItem icon={<TerminalIcon size={15}/>} label="MS-DOS Terminal" onClick={() => toggleWindow('terminal')} />
+              <div className="flex-1 py-1 px-1 bg-white">
+                <StartItem icon={<User size={15} className="text-blue-600" />} label="About Me" onClick={() => toggleWindow('about')} />
+                <StartItem icon={<Briefcase size={15} className="text-emerald-600" />} label="My Projects" onClick={() => toggleWindow('projects')} />
+                <StartItem icon={<Eye size={15} className="text-indigo-600" />} label="Resume Preview" onClick={() => toggleWindow('resume')} />
+                <StartItem icon={<Cpu size={15} className="text-purple-600" />} label="System Diagnostics" onClick={() => toggleWindow('sysinfo')} />
+                <StartItem icon={<Music size={15} className="text-pink-600" />} label="Retro Media Player" onClick={() => toggleWindow('player')} />
+                <StartItem icon={<FileEdit size={15} className="text-amber-600" />} label="Notepad (Scratchpad)" onClick={() => toggleWindow('notepad')} />
+                <StartItem icon={<Gamepad2 size={15} className="text-green-600" />} label="Arcade: Snake.exe" onClick={() => toggleWindow('snake')} />
+                <StartItem icon={<Mail size={15} className="text-sky-600" />} label="Contact Transmitter" onClick={() => toggleWindow('contact')} />
+                <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
+                <StartItem icon={<FileText size={15} className="text-teal-600" />} label="Download Tech Resume" onClick={() => { handleDownloadResume(); setStartMenuOpen(false); }} />
+                <StartItem icon={<Download size={15} className="text-blue-600" />} label="Download General CV" onClick={() => { handleDownloadCV(); setStartMenuOpen(false); }} />
+                <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
+                <StartItem icon={<TerminalIcon size={15} className="text-slate-800" />} label="MS-DOS Terminal" onClick={() => toggleWindow('terminal')} />
               </div>
             </div>
           </motion.div>
@@ -451,12 +478,21 @@ export default function App() {
       </AnimatePresence>
 
       {/* TASKBAR */}
-      <div className="absolute bottom-0 w-full h-10 bg-[#C0C0C0] border-t-2 border-white flex items-center px-1 z-[250]">
+      <div className="absolute bottom-0 w-full h-10 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 border-t-2 border-white/80 flex items-center px-1 z-[250] shadow-md">
         <button 
-          onClick={() => { soundFx.playClick(); setStartMenuOpen(!startMenuOpen); }} 
-          className="bg-[#C0C0C0] border-2 border-white border-r-gray-800 border-b-gray-800 px-2 md:px-4 py-1 font-black text-black text-[10px] md:text-xs flex items-center gap-1.5 hover:bg-[#d0d0d0] active:border-gray-800 shrink-0"
+          ref={startButtonRef}
+          onClick={(e) => { 
+            e.stopPropagation();
+            soundFx.playClick(); 
+            setStartMenuOpen(!startMenuOpen); 
+          }} 
+          className={`border-2 px-2 md:px-4 py-1 font-black text-[10px] md:text-xs flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            startMenuOpen 
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400 shadow-inner' 
+              : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300 shadow-sm active:translate-y-0.5'
+          }`}
         >
-          <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-600 border border-black/30 shadow-inner" /> START
+          <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-500 border border-black/20 shadow-sm" /> START
         </button>
         
         {/* TASKBAR WINDOW BUTTONS & TICKER */}
@@ -476,10 +512,10 @@ export default function App() {
                     setActiveWindow(id);
                   }
                 }} 
-                className={`px-2 md:px-3 py-1 border-2 text-black text-[9px] md:text-[10px] font-bold uppercase cursor-pointer min-w-[70px] md:min-w-[95px] text-center truncate flex items-center justify-center gap-1 ${
+                className={`px-2 md:px-3 py-1 border text-[9px] md:text-[10px] font-bold uppercase cursor-pointer min-w-[70px] md:min-w-[95px] text-center truncate flex items-center justify-center gap-1 transition-all rounded-sm ${
                   activeWindow === id && !minimizedWindows.includes(id) 
-                    ? 'bg-white/40 border-gray-800 border-r-white border-b-white font-black' 
-                    : 'bg-[#C0C0C0] border-white border-r-gray-800 border-b-gray-800'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400 font-black shadow-inner' 
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-sm'
                 }`}
               >
                 <span className="truncate">{id}</span>
@@ -586,10 +622,10 @@ function DesktopIcon({ icon, label, onClick, theme }) {
 const ContextMenuItem = ({ icon, label, onClick }) => (
   <div 
     onClick={onClick} 
-    className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer group"
+    className="flex items-center gap-2.5 px-3 py-1.5 rounded-sm hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white cursor-pointer group transition-all text-slate-800 font-bold"
   >
-    <span className="text-gray-700 group-hover:text-white">{icon}</span>
-    <span className="truncate">{label}</span>
+    <span className="text-blue-600 group-hover:text-white transition-colors shrink-0">{icon}</span>
+    <span className="truncate group-hover:text-white">{label}</span>
   </div>
 );
 
@@ -597,10 +633,10 @@ const ContextMenuItem = ({ icon, label, onClick }) => (
 const StartItem = ({ icon, label, onClick }) => (
   <div 
     onClick={() => { soundFx.playClick(); onClick(); }} 
-    className="flex items-center gap-3 px-3.5 py-2 hover:bg-[#000080] hover:text-white cursor-pointer group"
+    className="flex items-center gap-3 px-3 py-1.5 rounded-sm hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white cursor-pointer group transition-all text-slate-900 font-bold"
   >
-    <span className="text-gray-600 group-hover:text-white">{icon}</span>
-    <span className="text-[11px] font-bold tracking-tight">{label}</span>
+    <span className="group-hover:text-white transition-colors shrink-0">{icon}</span>
+    <span className="text-[11px] tracking-tight group-hover:text-white truncate">{label}</span>
   </div>
 );
 
