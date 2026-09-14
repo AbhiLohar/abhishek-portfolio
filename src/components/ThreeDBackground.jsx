@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 
 /**
- * High-Performance 3D Animated Background Engine
- * Inspired by MotionSites.ai (Digital Epoch, Digital Reality, Aetheris Voyage)
- * Modes:
- *  - 'neural': 3D Neural Synapse Network (AI Nodes & Axons pulsing in 3D space)
- *  - 'grid'  : 3D Cyber Horizon Wave (Undulating perspective grid)
- *  - 'matrix': 3D Volumetric Matrix Data Stream
+ * Ultra-High-Performance 60 FPS 3D Animated Background Engine
+ * Optimized for buttery smoothness with zero GPU/CPU lag:
+ *  - Cached offscreen glow sprites (no per-frame radial gradient allocations)
+ *  - Batched path draws (single-call line rendering)
+ *  - Fast squared-distance culling
+ *  - React.memo to prevent unnecessary re-renders
  */
-export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c55e' }) {
+function ThreeDBackground({ mode = 'neural', accentColor = '#22c55e' }) {
   const canvasRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const shockwavesRef = useRef([]);
@@ -18,7 +18,7 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     let animId;
@@ -30,43 +30,61 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     const handleMouseMove = (e) => {
-      // Normalize cursor between -1 and 1
       mouseRef.current.targetX = (e.clientX / width - 0.5) * 2;
       mouseRef.current.targetY = (e.clientY / height - 0.5) * 2;
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     const handleClick = (e) => {
-      // Add shockwave ripple origin
-      shockwavesRef.current.push({
-        x: e.clientX,
-        y: e.clientY,
-        radius: 10,
-        maxRadius: Math.max(width, height) * 0.45,
-        opacity: 0.8
-      });
+      if (shockwavesRef.current.length < 4) {
+        shockwavesRef.current.push({
+          x: e.clientX,
+          y: e.clientY,
+          radius: 10,
+          maxRadius: Math.min(width, height) * 0.4,
+          opacity: 0.7
+        });
+      }
     };
-    window.addEventListener('click', handleClick);
+    window.addEventListener('click', handleClick, { passive: true });
+
+    // ==========================================
+    // PRE-RENDER GLOW SPRITE (ZERO PER-FRAME ALLOCATIONS)
+    // ==========================================
+    const glowCanvas = document.createElement('canvas');
+    glowCanvas.width = 64;
+    glowCanvas.height = 64;
+    const gCtx = glowCanvas.getContext('2d');
+    if (gCtx) {
+      const g = gCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(74, 222, 128, 1)');
+      g.addColorStop(0.35, 'rgba(34, 197, 94, 0.45)');
+      g.addColorStop(1, 'rgba(34, 197, 94, 0)');
+      gCtx.fillStyle = g;
+      gCtx.beginPath();
+      gCtx.arc(32, 32, 32, 0, Math.PI * 2);
+      gCtx.fill();
+    }
 
     // ==========================================
     // 1. NEURAL MESH PARTICLES DATA
     // ==========================================
-    const NUM_NODES = Math.min(85, Math.floor(width / 18));
+    const NUM_NODES = Math.min(48, Math.max(22, Math.floor(width / 26)));
     const nodes = [];
-    const FOV = 400;
+    const FOV = 380;
 
     for (let i = 0; i < NUM_NODES; i++) {
       nodes.push({
-        x: (Math.random() - 0.5) * width * 1.5,
-        y: (Math.random() - 0.5) * height * 1.5,
-        z: Math.random() * 800 + 100,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
-        vz: (Math.random() - 0.5) * 0.8,
-        size: Math.random() * 2.5 + 1.2,
+        x: (Math.random() - 0.5) * width * 1.4,
+        y: (Math.random() - 0.5) * height * 1.4,
+        z: Math.random() * 700 + 120,
+        vx: (Math.random() - 0.5) * 0.65,
+        vy: (Math.random() - 0.5) * 0.65,
+        vz: (Math.random() - 0.5) * 0.65,
+        size: Math.random() * 2.2 + 1.2,
         pulsePhase: Math.random() * Math.PI * 2
       });
     }
@@ -74,18 +92,18 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
     // ==========================================
     // 2. 3D MATRIX RAIN DATA
     // ==========================================
-    const matrixCols = Math.floor(width / 24);
+    const matrixCols = Math.floor(width / 32);
     const matrixDrops = [];
     const chars = "01010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789αβγδεζηθλμξπρστυφχψω";
 
     for (let i = 0; i < matrixCols; i++) {
       matrixDrops.push({
-        x: i * 24,
+        x: i * 32,
         y: Math.random() * -height,
-        z: Math.random() * 600 + 150,
-        speed: Math.random() * 3 + 2,
+        z: Math.random() * 500 + 180,
+        speed: Math.random() * 2.5 + 2,
         char: chars[Math.floor(Math.random() * chars.length)],
-        length: Math.floor(Math.random() * 12 + 6)
+        length: Math.floor(Math.random() * 8 + 5)
       });
     }
 
@@ -95,7 +113,7 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
     let gridOffset = 0;
 
     // ==========================================
-    // MAIN RENDER LOOP (60 FPS)
+    // MAIN RENDER LOOP (SILKY SMOOTH 60 FPS)
     // ==========================================
     let frame = 0;
 
@@ -103,27 +121,27 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
       frame++;
 
       // Smooth mouse lerp
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
+      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.06;
+      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.06;
 
-      const rotY = mouseRef.current.x * 0.35;
-      const rotX = -mouseRef.current.y * 0.25;
+      const rotY = mouseRef.current.x * 0.28;
+      const rotX = -mouseRef.current.y * 0.2;
 
       ctx.clearRect(0, 0, width, height);
 
-      // --- SHOCKWAVE UPDATES ---
-      shockwavesRef.current = shockwavesRef.current.filter(sw => sw.radius < sw.maxRadius && sw.opacity > 0.01);
-      shockwavesRef.current.forEach(sw => {
-        sw.radius += 12;
-        sw.opacity *= 0.94;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(34, 197, 94, ${sw.opacity * 0.4})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
-      });
+      // --- SHOCKWAVE UPDATES (LIGHTWEIGHT) ---
+      if (shockwavesRef.current.length > 0) {
+        shockwavesRef.current = shockwavesRef.current.filter(sw => sw.radius < sw.maxRadius && sw.opacity > 0.02);
+        shockwavesRef.current.forEach(sw => {
+          sw.radius += 14;
+          sw.opacity *= 0.92;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(34, 197, 94, ${sw.opacity * 0.35})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      }
 
       // ------------------------------------------
       // MODE A: 3D NEURAL SYNAPSE NETWORK
@@ -137,20 +155,22 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
           n.x += n.vx;
           n.y += n.vy;
           n.z += n.vz;
-          n.pulsePhase += 0.03;
+          n.pulsePhase += 0.035;
 
           // Bounding box bounce
-          if (Math.abs(n.x) > width * 0.8) n.vx *= -1;
-          if (Math.abs(n.y) > height * 0.8) n.vy *= -1;
-          if (n.z < 80 || n.z > 950) n.vz *= -1;
+          if (Math.abs(n.x) > width * 0.75) n.vx *= -1;
+          if (Math.abs(n.y) > height * 0.75) n.vy *= -1;
+          if (n.z < 100 || n.z > 850) n.vz *= -1;
 
           // 3D Rotation Y
-          let x1 = n.x * Math.cos(rotY) + n.z * Math.sin(rotY);
-          let z1 = -n.x * Math.sin(rotY) + n.z * Math.cos(rotY);
+          const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+          let x1 = n.x * cosY + n.z * sinY;
+          let z1 = -n.x * sinY + n.z * cosY;
 
           // 3D Rotation X
-          let y2 = n.y * Math.cos(rotX) - z1 * Math.sin(rotX);
-          let z2 = n.y * Math.sin(rotX) + z1 * Math.cos(rotX);
+          const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+          let y2 = n.y * cosX - z1 * sinX;
+          let z2 = n.y * sinX + z1 * cosX;
 
           if (z2 <= 20) continue;
 
@@ -158,55 +178,48 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
           const scale = FOV / z2;
           const sx = width / 2 + x1 * scale;
           const sy = height / 2 + y2 * scale;
-          const alpha = Math.min(1, Math.max(0.1, (1000 - z2) / 850));
+          const alpha = Math.min(1, Math.max(0.12, (900 - z2) / 780));
 
           projected.push({ sx, sy, z: z2, scale, alpha, pulse: Math.sin(n.pulsePhase), size: n.size });
         }
 
-        // Draw connecting 3D Synaptic Axons
+        // BATCHED Axon Line Drawing (High Performance)
+        const maxDist = 125;
+        const maxDistSq = maxDist * maxDist;
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.18)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
         for (let i = 0; i < projected.length; i++) {
+          const p1 = projected[i];
           for (let j = i + 1; j < projected.length; j++) {
-            const p1 = projected[i];
             const p2 = projected[j];
             const dx = p1.sx - p2.sx;
             const dy = p1.sy - p2.sy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Connect nearby nodes
-            if (dist < 130) {
-              const lineAlpha = (1 - dist / 130) * Math.min(p1.alpha, p2.alpha) * 0.35;
-              ctx.beginPath();
+            const distSq = dx * dx + dy * dy;
+            if (distSq < maxDistSq) {
               ctx.moveTo(p1.sx, p1.sy);
               ctx.lineTo(p2.sx, p2.sy);
-              ctx.strokeStyle = `rgba(34, 197, 94, ${lineAlpha})`;
-              ctx.lineWidth = Math.max(0.5, (1 - dist / 130) * 1.5);
-              ctx.stroke();
             }
           }
         }
+        ctx.stroke();
 
-        // Draw Neural Nodes
+        // FAST Draw Neural Nodes using Precomputed Glow Canvas
         for (let i = 0; i < projected.length; i++) {
           const p = projected[i];
           const nodeRadius = Math.max(1, p.size * p.scale * (1 + p.pulse * 0.25));
+          const drawSize = nodeRadius * 6;
 
-          // Outer synaptic glow
-          const grad = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, nodeRadius * 3);
-          grad.addColorStop(0, `rgba(74, 222, 128, ${p.alpha * 0.9})`);
-          grad.addColorStop(0.4, `rgba(34, 197, 94, ${p.alpha * 0.4})`);
-          grad.addColorStop(1, 'rgba(34, 197, 94, 0)');
-
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(p.sx, p.sy, nodeRadius * 3, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = p.alpha;
+          ctx.drawImage(glowCanvas, p.sx - drawSize / 2, p.sy - drawSize / 2, drawSize, drawSize);
 
           // Solid core
-          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha * 0.95})`;
+          ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(p.sx, p.sy, Math.max(0.8, nodeRadius * 0.6), 0, Math.PI * 2);
+          ctx.arc(p.sx, p.sy, Math.max(0.8, nodeRadius * 0.55), 0, Math.PI * 2);
           ctx.fill();
         }
+        ctx.globalAlpha = 1.0;
       }
 
       // ------------------------------------------
@@ -214,77 +227,65 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
       // ------------------------------------------
       else if (mode === 'grid') {
         gridOffset = (gridOffset + 1.2) % 40;
-        const horizonY = height * 0.48 + mouseRef.current.y * 40;
-
-        // Ambient cyber horizon gradient
-        const horizonGlow = ctx.createLinearGradient(0, horizonY - 120, 0, horizonY + 180);
-        horizonGlow.addColorStop(0, 'rgba(5, 5, 16, 0)');
-        horizonGlow.addColorStop(0.45, 'rgba(34, 197, 94, 0.18)');
-        horizonGlow.addColorStop(1, 'rgba(5, 5, 16, 0)');
-        ctx.fillStyle = horizonGlow;
-        ctx.fillRect(0, horizonY - 120, width, 300);
-
-        ctx.lineWidth = 1.2;
-
-        // Perspective longitudinal lines converging to vanishing point
-        const vpX = width / 2 + mouseRef.current.x * 120;
+        const horizonY = height * 0.48 + mouseRef.current.y * 35;
+        const vpX = width / 2 + mouseRef.current.x * 100;
         const vpY = horizonY;
 
-        const numLong = 28;
+        // Perspective longitudinal lines
+        const numLong = 22;
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.16)';
+        ctx.beginPath();
         for (let i = -numLong / 2; i <= numLong / 2; i++) {
           const bottomX = width / 2 + i * (width / (numLong * 0.75));
-          ctx.beginPath();
           ctx.moveTo(vpX, vpY);
           ctx.lineTo(bottomX, height);
-          const lineAlpha = 0.25 * (1 - Math.abs(i) / (numLong / 2));
-          ctx.strokeStyle = `rgba(34, 197, 94, ${Math.max(0.05, lineAlpha)})`;
-          ctx.stroke();
         }
+        ctx.stroke();
 
         // Horizontal perspective lines with wave undulation
-        const numLat = 22;
+        const numLat = 18;
+        ctx.beginPath();
         for (let j = 0; j < numLat; j++) {
           const t = (j * 40 + gridOffset) / (numLat * 40);
           const py = vpY + Math.pow(t, 2.2) * (height - vpY);
-          const waveAmp = Math.sin(frame * 0.04 + j * 0.3) * 6 * t;
+          const waveAmp = Math.sin(frame * 0.04 + j * 0.3) * 5 * t;
 
-          ctx.beginPath();
           ctx.moveTo(0, py + waveAmp);
           ctx.lineTo(width, py + waveAmp);
-          ctx.strokeStyle = `rgba(34, 197, 94, ${t * 0.45})`;
-          ctx.stroke();
         }
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.24)';
+        ctx.stroke();
       }
 
       // ------------------------------------------
       // MODE C: 3D MATRIX VOLUMETRIC RAIN
       // ------------------------------------------
       else if (mode === 'matrix') {
-        ctx.font = '11px monospace';
+        ctx.font = '10px monospace';
 
         matrixDrops.forEach(d => {
           d.y += d.speed;
-          if (d.y > height + 100) {
-            d.y = -100;
+          if (d.y > height + 80) {
+            d.y = -80;
             d.char = chars[Math.floor(Math.random() * chars.length)];
           }
 
-          // 3D Perspective rotation
           const z = d.z;
           const scale = FOV / z;
-          const sx = width / 2 + (d.x - width / 2) * scale + mouseRef.current.x * 30;
-          const sy = d.y * scale + mouseRef.current.y * 30;
-          const alpha = Math.min(1, Math.max(0.1, (800 - z) / 700));
+          const sx = width / 2 + (d.x - width / 2) * scale + mouseRef.current.x * 25;
+          const sy = d.y * scale + mouseRef.current.y * 25;
+          const alpha = Math.min(1, Math.max(0.12, (750 - z) / 650));
 
-          // Draw head glyph (glowing bright white/green)
+          // Draw head glyph
           ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
           ctx.fillText(d.char, sx, sy);
 
           // Draw trailing glyphs
           for (let k = 1; k < d.length; k++) {
-            const trailY = sy - k * (14 * scale);
+            const trailY = sy - k * (13 * scale);
             if (trailY > 0 && trailY < height) {
-              const trailAlpha = alpha * (1 - k / d.length) * 0.7;
+              const trailAlpha = alpha * (1 - k / d.length) * 0.65;
               ctx.fillStyle = `rgba(34, 197, 94, ${trailAlpha})`;
               ctx.fillText(chars[(frame + k) % chars.length], sx, trailY);
             }
@@ -315,3 +316,6 @@ export default function ThreeDBackground({ mode = 'neural', accentColor = '#22c5
     />
   );
 }
+
+export default React.memo(ThreeDBackground);
+

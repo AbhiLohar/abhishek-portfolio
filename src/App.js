@@ -152,6 +152,22 @@ const StatusTicker = ({ messages }) => {
   );
 };
 
+// --- LIVE CLOCK COMPONENT (ISOLATED TO PREVENT GLOBAL RE-RENDERS) ---
+const SystemClock = React.memo(() => {
+  const [time, setTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <span>
+      {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </span>
+  );
+});
+
 export default function App() {
   const [bootPhase, setBootPhase] = useState(0); 
   const [loadProgress, setLoadProgress] = useState(0);
@@ -166,7 +182,6 @@ export default function App() {
   const [threeDMode, setThreeDMode] = useState('neural');
   const [isMuted, setIsMuted] = useState(false);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
-  const [currentTime, setCurrentTime] = useState(new Date());
   const constraintsRef = useRef(null);
   const startMenuRef = useRef(null);
   const startButtonRef = useRef(null);
@@ -194,32 +209,39 @@ export default function App() {
     };
   }, [startMenuOpen]);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
+  // Smooth & Snappy BIOS loader
   useEffect(() => {
     if (bootPhase === 0) {
-      const handleKeyDown = () => {
+      let isCancelled = false;
+      const skip = () => {
+        if (isCancelled) return;
+        isCancelled = true;
         soundFx.playBoot();
         setBootPhase(1);
       };
+
+      const handleKeyDown = () => skip();
       window.addEventListener('keydown', handleKeyDown);
+
       const interval = setInterval(() => {
         setLoadProgress(prev => {
           if (prev >= 100) { 
             clearInterval(interval); 
-            setTimeout(() => {
-              soundFx.playBoot();
-              setBootPhase(1);
-            }, 1000); 
+            if (!isCancelled) {
+              isCancelled = true;
+              setTimeout(() => {
+                soundFx.playBoot();
+                setBootPhase(1);
+              }, 250);
+            }
             return 100; 
           }
-          return prev + 1;
+          return Math.min(100, prev + 3);
         });
-      }, 35);
+      }, 40);
+
       return () => {
+        isCancelled = true;
         clearInterval(interval);
         window.removeEventListener('keydown', handleKeyDown);
       };
@@ -293,7 +315,10 @@ export default function App() {
         </div>
         <div className="w-full border-2 border-green-900 p-1 mt-8">
           <div className="h-3 bg-gray-900 overflow-hidden">
-            <motion.div className="h-full bg-green-500 shadow-[0_0_15px_#22c55e]" style={{ width: `${loadProgress}%` }} />
+            <div 
+              className="h-full bg-green-500 shadow-[0_0_15px_#22c55e] transition-all duration-75 ease-out" 
+              style={{ width: `${loadProgress}%` }} 
+            />
           </div>
         </div>
         <div className="flex justify-between items-center text-xs text-white/50 tracking-[0.3em] pt-2">
@@ -381,6 +406,8 @@ export default function App() {
                 left: maximizedWindows.includes(id) ? 0 : undefined,
                 right: maximizedWindows.includes(id) ? 0 : undefined,
                 bottom: maximizedWindows.includes(id) ? '40px' : undefined,
+                willChange: 'transform',
+                transform: 'translateZ(0)',
               }}
               className={`pointer-events-auto transition-all ${
                 maximizedWindows.includes(id) 
@@ -589,9 +616,7 @@ export default function App() {
           <span className="opacity-30 hidden sm:inline">|</span>
 
           {/* LIVE CLOCK */}
-          <span>
-            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-          </span>
+          <SystemClock />
         </div>
       </div>
     </div>
@@ -599,7 +624,7 @@ export default function App() {
 }
 
 // --- DESKTOP ICON COMPONENT ---
-function DesktopIcon({ icon, label, onClick, theme }) {
+const DesktopIcon = React.memo(function DesktopIcon({ icon, label, onClick, theme }) {
   return (
     <div 
       onClick={() => { soundFx.playClick(); onClick(); }} 
@@ -616,7 +641,7 @@ function DesktopIcon({ icon, label, onClick, theme }) {
       </span>
     </div>
   );
-}
+});
 
 // --- CONTEXT MENU ITEM ---
 const ContextMenuItem = ({ icon, label, onClick }) => (
@@ -641,7 +666,7 @@ const StartItem = ({ icon, label, onClick }) => (
 );
 
 // --- RETRO WINDOW COMPONENT ---
-function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
+const Window = React.memo(function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
   return (
     <div 
       className={`glass-window border-2 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.85)] overflow-hidden ${
@@ -692,10 +717,10 @@ function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized,
       <div className="p-4 md:p-8 flex-1 overflow-y-auto">{children}</div>
     </div>
   );
-}
+});
 
 // --- APP: SYSTEM MONITOR / NEOFETCH ---
-const SysInfoApp = () => {
+const SysInfoApp = React.memo(() => {
   const [cpuUsage, setCpuUsage] = useState(24);
   const [ramUsage, setRamUsage] = useState(384);
   const [uptimeSeconds, setUptimeSeconds] = useState(42);
@@ -788,10 +813,10 @@ const SysInfoApp = () => {
       </div>
     </div>
   );
-};
+});
 
 // --- APP: RETRO MEDIA PLAYER (WINAMP STYLE) ---
-const RetroPlayerApp = () => {
+const RetroPlayerApp = React.memo(() => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [beat, setBeat] = useState(1);
   const [volume, setVolume] = useState(80);
@@ -868,10 +893,10 @@ const RetroPlayerApp = () => {
       </div>
     </div>
   );
-};
+});
 
 // --- APP: NOTEPAD (INTERACTIVE TEXT EDITOR) ---
-const NotepadApp = () => {
+const NotepadApp = React.memo(() => {
   const [activeTab, setActiveTab] = useState('readme');
   const [scratchContent, setScratchContent] = useState(() => {
     return localStorage.getItem('abos_notes') || "Type your thoughts, feedback, or interview questions here...\n(Saved in your browser localStorage automatically)";
@@ -956,18 +981,19 @@ notes, or use the Contact app to send me a message!
       </div>
     </div>
   );
-};
+});
 
 // --- ABOUT APP ---
-const AboutContent = () => {
+const AboutContent = React.memo(() => {
   const [text, setText] = useState("");
   useEffect(() => {
     let i = 0;
+    const step = 2;
     const interval = setInterval(() => {
+      i += step;
       setText(userInfo.bio.substring(0, i));
-      i++; 
-      if (i > userInfo.bio.length) clearInterval(interval);
-    }, 12);
+      if (i >= userInfo.bio.length) clearInterval(interval);
+    }, 28);
     return () => clearInterval(interval);
   }, []);
 
@@ -1027,10 +1053,10 @@ const AboutContent = () => {
       </div>
     </div>
   );
-};
+});
 
 // --- ARCADE: SNAKE GAME WITH TOUCH CONTROLS & SFX ---
-const SnakeGame = () => {
+const SnakeGame = React.memo(() => {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('snake_hiscore') || 0));
@@ -1165,10 +1191,10 @@ const SnakeGame = () => {
       </div>
     </div>
   );
-};
+});
 
 // --- PROJECTS APP ---
-const ProjectList = () => (
+const ProjectList = React.memo(() => (
   <div className="space-y-4">
     {userInfo.projects.map((p, i) => (
       <div key={i} className="border border-white/10 bg-white/5 p-4 hover:border-green-500 transition-all">
@@ -1199,10 +1225,10 @@ const ProjectList = () => (
       </div>
     ))}
   </div>
-);
+));
 
 // --- RESUME APP ---
-const ResumePreview = () => (
+const ResumePreview = React.memo(() => (
   <div className="text-white space-y-6">
     {/* Quick Download Header */}
     <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/5 border border-green-500/30">
@@ -1315,10 +1341,10 @@ const ResumePreview = () => (
       </div>
     </div>
   </div>
-);
+));
 
 // --- CONTACT APP ---
-const ContactContent = () => {
+const ContactContent = React.memo(() => {
   const [formData, setFormData] = useState({ name: '', contact: '', message: '' });
   const [isSent, setIsSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -1410,10 +1436,10 @@ const ContactContent = () => {
       </form>
     </div>
   );
-};
+});
 
 // --- MS-DOS TERMINAL APP ---
-const Terminal = ({ onOpen, onSet3DMode }) => {
+const Terminal = React.memo(({ onOpen, onSet3DMode }) => {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState([
     { text: "AB-OS [Version 5.1.028] (C) 2026 Abhishek Lohar", type: "info" },
@@ -1543,4 +1569,4 @@ const Terminal = ({ onOpen, onSet3DMode }) => {
       </div>
     </div>
   );
-};
+});
