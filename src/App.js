@@ -779,7 +779,7 @@ const RetroPlayerApp = () => {
         {/* LCD DISPLAY */}
         <div className="bg-[#002200] border-2 border-[#00ff41]/40 p-3 text-green-400 font-mono shadow-inner">
           <div className="flex justify-between items-center text-[10px] border-b border-green-500/20 pb-1 mb-2">
-            <span className="font-bold tracking-widest">{isPlaying ? "PLAYING [8-BIT CHIP]" : "STOPPED"}</span>
+            <span className="font-bold tracking-widest">{isPlaying ? `PLAYING [BEAT ${beat}]` : "STOPPED"}</span>
             <span>128 KBPS / 44.1 KHZ</span>
           </div>
           <p className="text-xs font-black uppercase tracking-wider truncate mb-2">

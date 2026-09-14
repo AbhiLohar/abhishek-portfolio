@@ -79,6 +79,7 @@ abhishek-portfolio/
 │   └── index.js
 ├── .env.example                 # Template for environment variables
 ├── .gitignore                   # Ignores sensitive keys & build artifacts
+├── netlify.toml                 # Netlify deployment & SPA routing config
 ├── package.json
 └── README.md
 ```
