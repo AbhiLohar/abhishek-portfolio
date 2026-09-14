@@ -84,16 +84,16 @@ const userInfo = {
   ]
 };
 
-// --- TICKER DATA ---
+// --- TICKER & INSPIRING TECH QUOTES ---
 const statusMessages = [
-  "SYSTEM: AB-OS v5.1 ONLINE &bull; RETRO AUDIO & CRT ACTIVE",
-  "DOWNLOAD: NEW TECH RESUME & GENERAL CV AVAILABLE AS PDF",
-  "PYPI: TRY 'pip install local-persona-memory' FOR LOCAL LLM MEMORY",
-  "AESTHETIC: RIGHT-CLICK DESKTOP FOR QUICK SETTINGS & THEMES",
-  "SOUND: CLICK THE SPEAKER ICON IN TRAY TO TOGGLE RETRO SFX",
-  "CRT: CLICK [CRT] IN TRAY TO TOGGLE VINTAGE SCANLINE MONITOR",
-  "ARCADE: SNAKE NOW SUPPORTS KEYBOARD & TOUCH D-PAD CONTROLS",
-  "MUSIC: LAUNCH 'RETROPLAYER.EXE' FOR AMBIENT 8-BIT MELODIES"
+  "“The best way to predict the future is to invent it.” — Alan Kay",
+  "SYSTEM: AB-OS v5.2 Sonoma • 60 FPS Spatial Engine Active",
+  "“Simplicity is prerequisite for reliability.” — Edsger W. Dijkstra",
+  "PYPI PACKAGE: pip install local-persona-memory (Published by Abhishek)",
+  "“Make it work, make it right, make it fast.” — Kent Beck",
+  "DOWNLOAD: Official Tech Resume & General CV Available as PDF",
+  "“Code is like humor. When you have to explain it, it’s bad.” — Cory House",
+  "VIT-AP CSE • Specializing in AI, Deep Learning & Microservices"
 ];
 
 const themes = {
@@ -125,7 +125,7 @@ const handleDownloadCV = () => {
   document.body.removeChild(link);
 };
 
-// --- TICKER COMPONENT ---
+// --- TICKER & INSPIRING QUOTES COMPONENT ---
 const StatusTicker = ({ messages }) => {
   const [index, setIndex] = useState(0);
 
@@ -137,18 +137,21 @@ const StatusTicker = ({ messages }) => {
   }, [messages.length]);
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.span
-        key={index}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.35 }}
-        className="text-[9px] text-gray-800 font-bold uppercase italic whitespace-nowrap"
-      >
-        <span className="text-blue-700 mr-1.5">▶</span> {messages[index]}
-      </motion.span>
-    </AnimatePresence>
+    <div className="flex items-center gap-1.5 overflow-hidden">
+      <Sparkles size={11} className="text-yellow-400 shrink-0 animate-pulse" />
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={index}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="text-[10px] md:text-[11px] font-semibold text-cyan-200 tracking-wide whitespace-nowrap truncate max-w-[280px] lg:max-w-[420px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
+        >
+          {messages[index]}
+        </motion.span>
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -446,9 +449,9 @@ export default function App() {
             </span>
           </div>
 
-          {/* Live System Monitor Ticker in Menu Bar */}
+          {/* Live System Quotes & Status Ticker in Menu Bar */}
           {showTicker && (
-            <div className="hidden xl:flex items-center bg-white/10 px-2.5 py-0.5 rounded-full max-w-sm overflow-hidden text-[10px] text-cyan-200">
+            <div className="hidden md:flex items-center bg-black/60 border border-cyan-400/40 px-3 py-0.5 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.25)] max-w-[280px] lg:max-w-[420px] overflow-hidden">
               <StatusTicker messages={statusMessages} />
             </div>
           )}
@@ -537,19 +540,18 @@ export default function App() {
               drag={!maximizedWindows.includes(id)}
               dragConstraints={constraintsRef}
               dragMomentum={false}
-              initial={{ scale: 0.15, y: 320, opacity: 0 }} 
-              animate={{ scale: 1, y: 0, opacity: 1 }} 
+              initial={{ scale: 0.18, y: 260, opacity: 0 }} 
+              animate={{ 
+                scale: 1, 
+                y: 0, 
+                opacity: 1,
+                transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] } 
+              }} 
               exit={{ 
-                scale: 0.12, 
-                y: 340, 
+                scale: 0.14, 
+                y: 280, 
                 opacity: 0, 
-                transition: { duration: 0.28, ease: [0.4, 0, 0.2, 1] } 
-              }}
-              transition={{ 
-                type: "spring", 
-                damping: 26, 
-                stiffness: 280, 
-                mass: 0.8 
+                transition: { duration: 0.22, ease: [0.4, 0, 0.2, 1] } 
               }}
               onMouseDown={() => setActiveWindow(id)}
               style={{ 
@@ -560,10 +562,12 @@ export default function App() {
                 right: maximizedWindows.includes(id) ? 0 : undefined,
                 bottom: maximizedWindows.includes(id) ? '76px' : undefined,
                 transformOrigin: 'bottom center',
-                willChange: 'transform',
+                willChange: 'transform, opacity',
                 transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden'
               }}
-              className={`pointer-events-auto transition-all ${
+              className={`pointer-events-auto ${
                 maximizedWindows.includes(id) 
                   ? 'w-full h-[calc(100vh-104px)] max-w-none' 
                   : 'w-full max-w-[95%] md:max-w-[720px]'
@@ -704,13 +708,13 @@ export default function App() {
             return (
               <motion.div
                 key={app.id}
-                whileHover={{ scale: 1.25, y: -6 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                whileHover={{ scale: 1.22, y: -6 }}
+                whileTap={{ scale: 0.88 }}
+                transition={{ type: "spring", stiffness: 450, damping: 20 }}
                 className="relative group flex flex-col items-center cursor-pointer shrink-0"
                 onClick={() => handleDockItemClick(app.id)}
               >
-                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md border border-white/25 transition-transform`}>
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md border border-white/25`}>
                   {React.cloneElement(app.icon, { size: 20 })}
                 </div>
 
@@ -819,7 +823,7 @@ const StartItem = ({ icon, label, onClick }) => (
 const Window = React.memo(function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
   return (
     <div 
-      className={`glass-window border flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-150 ${
+      className={`glass-window border flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden ${
         isMaximized ? 'h-full w-full rounded-none border-0' : 'h-[75vh] md:h-[540px] rounded-2xl'
       }`} 
       style={{ 
