@@ -6,7 +6,7 @@ import {
   Palette, Briefcase, Minus,
   Eye, Mail, Gamepad2, CloudSun, Github, Linkedin, FileText, ExternalLink,
   Maximize2, Minimize2, Volume2, VolumeX, Monitor, Cpu, Music, Play, Square, FileEdit,
-  Sparkles, Check, ArrowUp, ArrowDown, ArrowLeft, ArrowRight
+  Sparkles, Check, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Rocket, Wifi, Battery
 } from 'lucide-react';
 import { soundFx } from './utils/audio';
 import ThreeDBackground from './components/ThreeDBackground';
@@ -177,16 +177,15 @@ export default function App() {
   const [activeWindow, setActiveWindow] = useState('about');
   const [activeTheme, setActiveTheme] = useState('deepSea');
   const [startMenuOpen, setStartMenuOpen] = useState(false);
-  const [showTicker, setShowTicker] = useState(true); 
+  const [showTicker] = useState(true); 
   const [crtEnabled, setCrtEnabled] = useState(true);
   const [threeDMode, setThreeDMode] = useState('neural');
   const [isMuted, setIsMuted] = useState(false);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const constraintsRef = useRef(null);
   const startMenuRef = useRef(null);
-  const startButtonRef = useRef(null);
 
-  // Close Start Menu on outside click
+  // Close Start / Launchpad Menu on outside click
   useEffect(() => {
     if (!startMenuOpen) return;
 
@@ -194,8 +193,7 @@ export default function App() {
       if (
         startMenuRef.current && 
         !startMenuRef.current.contains(e.target) &&
-        startButtonRef.current && 
-        !startButtonRef.current.contains(e.target)
+        !e.target.closest('[data-start-toggle]')
       ) {
         setStartMenuOpen(false);
       }
@@ -275,6 +273,34 @@ export default function App() {
       prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id]
     );
   };
+
+  const handleDockItemClick = (id) => {
+    soundFx.playClick();
+    if (!openWindows.includes(id)) {
+      setOpenWindows(prev => [...prev, id]);
+      setMinimizedWindows(prev => prev.filter(w => w !== id));
+      setActiveWindow(id);
+    } else if (minimizedWindows.includes(id)) {
+      setMinimizedWindows(prev => prev.filter(w => w !== id));
+      setActiveWindow(id);
+    } else if (activeWindow === id) {
+      minimizeWindow(id);
+    } else {
+      setActiveWindow(id);
+    }
+  };
+
+  const dockApps = [
+    { id: 'about', label: 'About Abhishek', icon: <User className="text-white" />, gradient: 'from-blue-500 to-indigo-600' },
+    { id: 'projects', label: 'Projects & PyPI', icon: <Briefcase className="text-white" />, gradient: 'from-emerald-500 to-teal-600' },
+    { id: 'resume', label: 'Resume & CV', icon: <FileText className="text-white" />, gradient: 'from-violet-500 to-purple-600' },
+    { id: 'terminal', label: 'Terminal (CLI)', icon: <TerminalIcon className="text-emerald-400" />, gradient: 'from-gray-900 to-black border border-white/20' },
+    { id: 'sysinfo', label: 'Diagnostics', icon: <Cpu className="text-white" />, gradient: 'from-amber-500 to-orange-600' },
+    { id: 'player', label: 'Retro Media', icon: <Music className="text-white" />, gradient: 'from-pink-500 to-rose-600' },
+    { id: 'notepad', label: 'Scratchpad', icon: <FileEdit className="text-white" />, gradient: 'from-yellow-500 to-amber-600' },
+    { id: 'snake', label: 'Snake Arcade', icon: <Gamepad2 className="text-white" />, gradient: 'from-green-500 to-emerald-700' },
+    { id: 'contact', label: 'Contact Transmitter', icon: <Mail className="text-white" />, gradient: 'from-sky-400 to-blue-600' },
+  ];
 
   const handleContextMenu = (e) => {
     e.preventDefault();
@@ -371,8 +397,125 @@ export default function App() {
       {/* 3D SPATIAL BACKGROUND (MOTIONSITES AI ENGINE) */}
       <ThreeDBackground mode={threeDMode} accentColor={themes[activeTheme].border} />
 
+      {/* MACOS TOP STATUS / MENU BAR */}
+      <div className="fixed top-0 left-0 right-0 h-7 bg-black/60 backdrop-blur-xl border-b border-white/10 z-[260] flex items-center justify-between px-3 text-[11px] md:text-xs text-white/90 select-none shadow-sm">
+        {/* Left: AB-OS Monogram & Menus */}
+        <div className="flex items-center gap-3">
+          <button 
+            data-start-toggle="true"
+            onClick={(e) => {
+              e.stopPropagation();
+              soundFx.playClick();
+              setStartMenuOpen(prev => !prev);
+            }}
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/15 transition-colors cursor-pointer font-black text-cyan-400"
+            title="AB-OS System Menu"
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
+            <span className="tracking-wider">AB-OS</span>
+          </button>
+          
+          <span className="font-bold text-white hidden sm:inline">
+            {activeWindow ? activeWindow.toUpperCase() + ".app" : 'Finder'}
+          </span>
+
+          <div className="hidden md:flex items-center gap-3 text-white/70 text-[11px]">
+            <span 
+              onClick={() => toggleWindow('about')} 
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              About
+            </span>
+            <span 
+              onClick={() => toggleWindow('projects')} 
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              Projects
+            </span>
+            <span 
+              onClick={() => toggleWindow('terminal')} 
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              Terminal
+            </span>
+            <span 
+              onClick={cycleTheme} 
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              Themes
+            </span>
+          </div>
+
+          {/* Live System Monitor Ticker in Menu Bar */}
+          {showTicker && (
+            <div className="hidden xl:flex items-center bg-white/10 px-2.5 py-0.5 rounded-full max-w-sm overflow-hidden text-[10px] text-cyan-200">
+              <StatusTicker messages={statusMessages} />
+            </div>
+          )}
+        </div>
+
+        {/* Right: Quick Toggles & System Tray */}
+        <div className="flex items-center gap-2.5">
+          {/* 3D Mode */}
+          <button 
+            onClick={() => {
+              soundFx.playClick();
+              const modes = ['neural', 'grid', 'matrix', 'off'];
+              const nextIndex = (modes.indexOf(threeDMode) + 1) % modes.length;
+              setThreeDMode(modes[nextIndex]);
+            }}
+            title="Switch 3D Spatial Canvas"
+            className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all bg-black/50 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/20 cursor-pointer"
+          >
+            3D: {threeDMode.toUpperCase()}
+          </button>
+
+          {/* CRT Scanlines Toggle */}
+          <button 
+            onClick={() => { soundFx.playClick(); setCrtEnabled(!crtEnabled); }}
+            title="Toggle CRT Scanline Monitor Effect"
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all border cursor-pointer ${
+              crtEnabled 
+                ? 'bg-green-500/20 text-green-300 border-green-500/60' 
+                : 'bg-white/10 text-white/60 border-white/20 hover:text-white'
+            }`}
+          >
+            CRT
+          </button>
+
+          {/* Audio Volume */}
+          <button 
+            onClick={toggleAudioMute}
+            title={isMuted ? "Unmute 8-Bit Audio" : "Mute Audio"}
+            className="cursor-pointer hover:text-cyan-400 p-0.5 text-white/80 transition-colors"
+          >
+            {isMuted ? <VolumeX size={13} className="text-red-400" /> : <Volume2 size={13} className="text-cyan-400" />}
+          </button>
+
+          {/* Wi-Fi & Battery */}
+          <div className="hidden sm:flex items-center gap-2 text-white/70">
+            <Wifi size={12} className="text-cyan-400" title="Connected: 1 Gbps High-Speed" />
+            <div className="flex items-center gap-1 text-[10px]">
+              <Battery size={13} className="text-green-400" />
+              <span className="hidden lg:inline">100%</span>
+            </div>
+          </div>
+
+          {/* Weather */}
+          <div className="hidden lg:flex items-center gap-1 text-white/70 text-[10px]">
+            <CloudSun size={12} className="text-yellow-400" />
+            <span>33°C</span>
+          </div>
+
+          {/* Isolated Clock */}
+          <div className="pl-1 text-white font-medium text-[11px]">
+            <SystemClock />
+          </div>
+        </div>
+      </div>
+
       {/* DESKTOP ICONS GRID */}
-      <div className="absolute left-4 top-4 md:left-6 md:top-6 grid grid-cols-2 md:grid-cols-1 gap-x-4 gap-y-5 md:gap-y-7 z-10 overflow-y-auto max-h-[85vh] p-1">
+      <div className="absolute left-4 top-10 md:left-6 md:top-12 grid grid-cols-2 md:grid-cols-1 gap-x-4 gap-y-5 md:gap-y-6 z-10 overflow-y-auto max-h-[calc(100vh-140px)] p-1 no-scrollbar">
         <DesktopIcon theme={themes[activeTheme]} icon={<User />} label="About" onClick={() => toggleWindow('about')} />
         <DesktopIcon theme={themes[activeTheme]} icon={<Briefcase />} label="Projects" onClick={() => toggleWindow('projects')} />
         <DesktopIcon theme={themes[activeTheme]} icon={<Eye />} label="Resume" onClick={() => toggleWindow('resume')} />
@@ -385,8 +528,8 @@ export default function App() {
         <DesktopIcon theme={themes[activeTheme]} icon={<Mail />} label="Contact" onClick={() => toggleWindow('contact')} />
       </div>
 
-      {/* WINDOW DISPLAY CONTAINER */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-2 md:p-4 overflow-hidden bottom-10">
+      {/* WINDOW DISPLAY CONTAINER (MACOS GENIE / SCALE EFFECT) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-2 md:p-4 overflow-hidden top-7 bottom-20">
         <AnimatePresence>
           {openWindows.map((id) => !minimizedWindows.includes(id) && (
             <motion.div 
@@ -394,30 +537,41 @@ export default function App() {
               drag={!maximizedWindows.includes(id)}
               dragConstraints={constraintsRef}
               dragMomentum={false}
-              initial={{ scale: 0.85, opacity: 0, y: 40 }} 
-              animate={{ scale: 1, opacity: 1, y: 0 }} 
-              exit={{ scale: 0.85, opacity: 0, y: 40 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              initial={{ scale: 0.15, y: 320, opacity: 0 }} 
+              animate={{ scale: 1, y: 0, opacity: 1 }} 
+              exit={{ 
+                scale: 0.12, 
+                y: 340, 
+                opacity: 0, 
+                transition: { duration: 0.28, ease: [0.4, 0, 0.2, 1] } 
+              }}
+              transition={{ 
+                type: "spring", 
+                damping: 26, 
+                stiffness: 280, 
+                mass: 0.8 
+              }}
               onMouseDown={() => setActiveWindow(id)}
               style={{ 
                 zIndex: activeWindow === id ? 100 : 50, 
                 position: maximizedWindows.includes(id) ? 'fixed' : 'absolute',
-                top: maximizedWindows.includes(id) ? 0 : undefined,
+                top: maximizedWindows.includes(id) ? '28px' : undefined,
                 left: maximizedWindows.includes(id) ? 0 : undefined,
                 right: maximizedWindows.includes(id) ? 0 : undefined,
-                bottom: maximizedWindows.includes(id) ? '40px' : undefined,
+                bottom: maximizedWindows.includes(id) ? '76px' : undefined,
+                transformOrigin: 'bottom center',
                 willChange: 'transform',
                 transform: 'translateZ(0)',
               }}
               className={`pointer-events-auto transition-all ${
                 maximizedWindows.includes(id) 
-                  ? 'w-full h-[calc(100vh-40px)] max-w-none' 
-                  : 'w-full max-w-[95%] md:max-w-[700px]'
+                  ? 'w-full h-[calc(100vh-104px)] max-w-none' 
+                  : 'w-full max-w-[95%] md:max-w-[720px]'
               }`}
             >
               <Window 
                 theme={themes[activeTheme]} 
-                title={id.toUpperCase() + ".EXE"} 
+                title={id.toUpperCase() + ".app"} 
                 isMaximized={maximizedWindows.includes(id)}
                 onClose={() => closeWindow(id)}
                 onMinimize={() => minimizeWindow(id)}
@@ -461,7 +615,7 @@ export default function App() {
               <ContextMenuItem icon={isMuted ? <VolumeX size={14}/> : <Volume2 size={14}/>} label={`Sound FX: ${isMuted ? 'OFF' : 'ON'}`} onClick={toggleAudioMute} />
               <div className="h-[1px] bg-slate-200 my-1 mx-1" />
               <ContextMenuItem icon={<Cpu size={14}/>} label="System Info" onClick={() => toggleWindow('sysinfo')} />
-              <ContextMenuItem icon={<TerminalIcon size={14}/>} label="MS-DOS Prompt" onClick={() => toggleWindow('terminal')} />
+              <ContextMenuItem icon={<TerminalIcon size={14}/>} label="Terminal Prompt" onClick={() => toggleWindow('terminal')} />
               <div className="h-[1px] bg-slate-200 my-1 mx-1" />
               <ContextMenuItem icon={<Download size={14}/>} label="Download Tech Resume" onClick={handleDownloadResume} />
               <ContextMenuItem icon={<FileText size={14}/>} label="Download General CV" onClick={handleDownloadCV} />
@@ -470,153 +624,149 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* START MENU */}
+      {/* MACOS SYSTEM / LAUNCHPAD MENU */}
       <AnimatePresence>
         {startMenuOpen && (
           <motion.div 
             ref={startMenuRef}
-            initial={{ y: 50, opacity: 0 }} 
-            animate={{ y: 0, opacity: 1 }} 
-            exit={{ y: 50, opacity: 0 }} 
-            className="absolute bottom-11 left-1 w-76 bg-white/95 backdrop-blur-md border-2 border-white shadow-[0_15px_50px_rgba(0,0,0,0.5)] p-1 z-[300] text-slate-900 rounded-sm overflow-hidden"
+            initial={{ y: -10, opacity: 0, scale: 0.96 }} 
+            animate={{ y: 0, opacity: 1, scale: 1 }} 
+            exit={{ y: -10, opacity: 0, scale: 0.96 }} 
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed top-8 left-3 w-80 bg-white/95 backdrop-blur-xl border border-white/60 shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-2 z-[300] text-slate-900 rounded-2xl overflow-hidden"
           >
-            <div className="flex">
-              <div className="bg-gradient-to-t from-blue-600 via-indigo-600 to-cyan-400 w-9 flex items-center justify-center [writing-mode:vertical-lr] rotate-180 text-white font-black py-6 text-xs uppercase tracking-widest shadow-inner select-none">
-                AB-OS 5.2
+            {/* Header branding */}
+            <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 rounded-xl text-white shadow-sm mb-2">
+              <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center font-black text-sm">
+                AL
               </div>
-              <div className="flex-1 py-1 px-1 bg-white">
-                <StartItem icon={<User size={15} className="text-blue-600" />} label="About Me" onClick={() => toggleWindow('about')} />
-                <StartItem icon={<Briefcase size={15} className="text-emerald-600" />} label="My Projects" onClick={() => toggleWindow('projects')} />
-                <StartItem icon={<Eye size={15} className="text-indigo-600" />} label="Resume Preview" onClick={() => toggleWindow('resume')} />
-                <StartItem icon={<Cpu size={15} className="text-purple-600" />} label="System Diagnostics" onClick={() => toggleWindow('sysinfo')} />
-                <StartItem icon={<Music size={15} className="text-pink-600" />} label="Retro Media Player" onClick={() => toggleWindow('player')} />
-                <StartItem icon={<FileEdit size={15} className="text-amber-600" />} label="Notepad (Scratchpad)" onClick={() => toggleWindow('notepad')} />
-                <StartItem icon={<Gamepad2 size={15} className="text-green-600" />} label="Arcade: Snake.exe" onClick={() => toggleWindow('snake')} />
-                <StartItem icon={<Mail size={15} className="text-sky-600" />} label="Contact Transmitter" onClick={() => toggleWindow('contact')} />
-                <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
-                <StartItem icon={<FileText size={15} className="text-teal-600" />} label="Download Tech Resume" onClick={() => { handleDownloadResume(); setStartMenuOpen(false); }} />
-                <StartItem icon={<Download size={15} className="text-blue-600" />} label="Download General CV" onClick={() => { handleDownloadCV(); setStartMenuOpen(false); }} />
-                <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
-                <StartItem icon={<TerminalIcon size={15} className="text-slate-800" />} label="MS-DOS Terminal" onClick={() => toggleWindow('terminal')} />
+              <div className="flex-1 overflow-hidden">
+                <div className="font-black text-xs tracking-wider">ABHISHEK LOHAR</div>
+                <div className="text-[10px] text-white/80 truncate">AB-OS Sonoma 14.5 &bull; VIT-AP</div>
               </div>
+            </div>
+
+            {/* Menu Items */}
+            <div className="space-y-0.5">
+              <StartItem icon={<User size={15} className="text-blue-600" />} label="About Abhishek" onClick={() => toggleWindow('about')} />
+              <StartItem icon={<Briefcase size={15} className="text-emerald-600" />} label="Projects & PyPI Package" onClick={() => toggleWindow('projects')} />
+              <StartItem icon={<Eye size={15} className="text-indigo-600" />} label="Interactive Resume" onClick={() => toggleWindow('resume')} />
+              <StartItem icon={<Cpu size={15} className="text-purple-600" />} label="System Diagnostics" onClick={() => toggleWindow('sysinfo')} />
+              <StartItem icon={<Music size={15} className="text-pink-600" />} label="8-Bit Media Player" onClick={() => toggleWindow('player')} />
+              <StartItem icon={<FileEdit size={15} className="text-amber-600" />} label="Scratchpad Notes" onClick={() => toggleWindow('notepad')} />
+              <StartItem icon={<Gamepad2 size={15} className="text-green-600" />} label="Arcade: Snake.app" onClick={() => toggleWindow('snake')} />
+              <StartItem icon={<Mail size={15} className="text-sky-600" />} label="Contact Transmitter" onClick={() => toggleWindow('contact')} />
+              <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
+              <StartItem icon={<FileText size={15} className="text-teal-600" />} label="Download Tech Resume (PDF)" onClick={() => { handleDownloadResume(); setStartMenuOpen(false); }} />
+              <StartItem icon={<Download size={15} className="text-blue-600" />} label="Download General CV (PDF)" onClick={() => { handleDownloadCV(); setStartMenuOpen(false); }} />
+              <div className="h-[1px] bg-slate-200 my-1.5 mx-1" />
+              <StartItem icon={<TerminalIcon size={15} className="text-slate-800" />} label="Zsh / Terminal.app" onClick={() => toggleWindow('terminal')} />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* TASKBAR */}
-      <div className="absolute bottom-0 w-full h-10 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 border-t-2 border-white/80 flex items-center px-1 z-[250] shadow-md">
-        <button 
-          ref={startButtonRef}
-          onClick={(e) => { 
-            e.stopPropagation();
-            soundFx.playClick(); 
-            setStartMenuOpen(!startMenuOpen); 
-          }} 
-          className={`border-2 px-2 md:px-4 py-1 font-black text-[10px] md:text-xs flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
-            startMenuOpen 
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400 shadow-inner' 
-              : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300 shadow-sm active:translate-y-0.5'
-          }`}
-        >
-          <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-500 border border-black/20 shadow-sm" /> START
-        </button>
-        
-        {/* TASKBAR WINDOW BUTTONS & TICKER */}
-        <div className="flex-1 flex items-center gap-1 px-1 md:px-2 overflow-hidden h-full">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide max-w-full">
-            {openWindows.map(id => (
-              <div 
-                key={id} 
-                onClick={() => {
-                  soundFx.playClick();
-                  if (minimizedWindows.includes(id)) {
-                    setMinimizedWindows(prev => prev.filter(w => w !== id));
-                    setActiveWindow(id);
-                  } else if (activeWindow === id) {
-                    minimizeWindow(id);
-                  } else {
-                    setActiveWindow(id);
-                  }
-                }} 
-                className={`px-2 md:px-3 py-1 border text-[9px] md:text-[10px] font-bold uppercase cursor-pointer min-w-[70px] md:min-w-[95px] text-center truncate flex items-center justify-center gap-1 transition-all rounded-sm ${
-                  activeWindow === id && !minimizedWindows.includes(id) 
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400 font-black shadow-inner' 
-                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-sm'
-                }`}
-              >
-                <span className="truncate">{id}</span>
-              </div>
-            ))}
-          </div>
+      {/* MACOS FLOATING GLASS DOCK */}
+      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[250] flex items-end justify-center pointer-events-auto">
+        <div className="mac-dock-glass rounded-2xl px-2.5 py-1.5 md:px-3.5 md:py-2 flex items-center gap-1.5 md:gap-2.5 max-w-[96vw] overflow-x-auto no-scrollbar shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+          {/* Launchpad / System Menu Icon */}
+          <motion.div 
+            whileHover={{ scale: 1.25, y: -6 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative group flex flex-col items-center cursor-pointer shrink-0"
+            data-start-toggle="true"
+            onClick={(e) => {
+              e.stopPropagation();
+              soundFx.playClick();
+              setStartMenuOpen(prev => !prev);
+            }}
+          >
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-md border border-white/25">
+              <Rocket size={20} className="text-white drop-shadow-sm" />
+            </div>
+            <div className="absolute -top-9 px-2.5 py-0.5 bg-black/85 backdrop-blur-md text-white text-[10px] font-bold rounded-md shadow-xl border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+              Launchpad
+            </div>
+            <div className={`w-1.5 h-1.5 rounded-full mt-1 transition-all ${
+              startMenuOpen ? 'bg-cyan-400 shadow-[0_0_8px_#22d3ee]' : 'bg-transparent'
+            }`} />
+          </motion.div>
 
-          <AnimatePresence>
-            {showTicker && (
-              <motion.div 
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="hidden xl:flex flex-1 items-center bg-black/5 h-7 px-3 border-2 border-white/30 border-t-gray-700 border-l-gray-700 overflow-hidden mx-2 relative group min-w-[220px]"
+          <div className="w-[1px] h-7 bg-white/15 mx-0.5 shrink-0" />
+
+          {/* DOCK APP ICONS */}
+          {dockApps.map(app => {
+            const isOpen = openWindows.includes(app.id);
+            const isMin = minimizedWindows.includes(app.id);
+            const isActive = activeWindow === app.id && !isMin;
+
+            return (
+              <motion.div
+                key={app.id}
+                whileHover={{ scale: 1.25, y: -6 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="relative group flex flex-col items-center cursor-pointer shrink-0"
+                onClick={() => handleDockItemClick(app.id)}
               >
-                <StatusTicker messages={statusMessages} />
-                <button 
-                  onClick={() => setShowTicker(false)}
-                  className="absolute right-1 text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity bg-[#C0C0C0] p-0.5 border border-gray-400"
-                >
-                  <X size={10} strokeWidth={4} />
-                </button>
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md border border-white/25 transition-transform`}>
+                  {React.cloneElement(app.icon, { size: 20 })}
+                </div>
+
+                <div className="absolute -top-9 px-2.5 py-0.5 bg-black/85 backdrop-blur-md text-white text-[10px] font-bold rounded-md shadow-xl border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+                  {app.label}
+                </div>
+
+                <div className={`w-1.5 h-1.5 rounded-full mt-1 transition-all ${
+                  isActive 
+                    ? 'bg-cyan-400 shadow-[0_0_8px_#22d3ee] scale-110' 
+                    : isOpen 
+                    ? 'bg-white/80 shadow-[0_0_4px_rgba(255,255,255,0.6)]' 
+                    : 'bg-transparent'
+                }`} />
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            );
+          })}
 
-        {/* SYSTEM TRAY (3D, CRT, AUDIO, WEATHER, CLOCK) */}
-        <div className="bg-[#C0C0C0] border-2 border-gray-600 border-r-white border-b-white px-2 md:px-3 py-1 text-black text-[9px] md:text-[10px] font-bold flex items-center gap-2 whitespace-nowrap shrink-0 shadow-inner">
-          {/* 3D MODE BUTTON (MOTIONSITES STYLE) */}
-          <button 
+          <div className="w-[1px] h-7 bg-white/15 mx-0.5 shrink-0" />
+
+          {/* Theme Quick Switcher */}
+          <motion.div
+            whileHover={{ scale: 1.25, y: -6 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative group flex flex-col items-center cursor-pointer shrink-0"
+            onClick={cycleTheme}
+          >
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-600 flex items-center justify-center shadow-md border border-white/25">
+              <Palette size={20} className="text-white drop-shadow-sm" />
+            </div>
+            <div className="absolute -top-9 px-2.5 py-0.5 bg-black/85 backdrop-blur-md text-white text-[10px] font-bold rounded-md shadow-xl border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+              Theme: {themes[activeTheme].name}
+            </div>
+            <div className="w-1.5 h-1.5 rounded-full mt-1 bg-transparent" />
+          </motion.div>
+
+          {/* Quick Resume Download */}
+          <motion.div
+            whileHover={{ scale: 1.25, y: -6 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="relative group flex flex-col items-center cursor-pointer shrink-0"
             onClick={() => {
               soundFx.playClick();
-              const modes = ['neural', 'grid', 'matrix', 'off'];
-              const nextIndex = (modes.indexOf(threeDMode) + 1) % modes.length;
-              setThreeDMode(modes[nextIndex]);
+              handleDownloadResume();
             }}
-            title="Switch 3D Spatial Canvas (Neural Mesh / Cyber Horizon / Matrix / Off)"
-            className="px-1.5 py-0.5 border text-[8px] font-bold uppercase cursor-pointer transition-all bg-black/80 text-green-400 border-green-500/50 hover:bg-green-600 hover:text-black shadow-sm"
           >
-            3D: {threeDMode.toUpperCase()}
-          </button>
-
-          {/* CRT TOGGLE BUTTON */}
-          <button 
-            onClick={() => { soundFx.playClick(); setCrtEnabled(!crtEnabled); }}
-            title="Toggle CRT Scanline Monitor Effect"
-            className={`px-1.5 py-0.5 border text-[8px] font-bold uppercase cursor-pointer transition-all ${
-              crtEnabled ? 'bg-green-700 text-white border-black' : 'bg-gray-300 text-gray-700 border-gray-400'
-            }`}
-          >
-            CRT
-          </button>
-
-          {/* SOUND TOGGLE BUTTON */}
-          <button 
-            onClick={toggleAudioMute}
-            title={isMuted ? "Unmute 8-Bit Audio" : "Mute Audio"}
-            className="cursor-pointer hover:text-blue-700 p-0.5"
-          >
-            {isMuted ? <VolumeX size={13} className="text-red-600" /> : <Volume2 size={13} className="text-green-700" />}
-          </button>
-
-          <span className="opacity-30">|</span>
-
-          {/* WEATHER */}
-          <div className="hidden sm:flex items-center gap-1 text-blue-800 font-bold">
-            <CloudSun size={13} /> <span>33°C</span>
-          </div>
-
-          <span className="opacity-30 hidden sm:inline">|</span>
-
-          {/* LIVE CLOCK */}
-          <SystemClock />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-md border border-white/25">
+              <Download size={20} className="text-white drop-shadow-sm" />
+            </div>
+            <div className="absolute -top-9 px-2.5 py-0.5 bg-black/85 backdrop-blur-md text-white text-[10px] font-bold rounded-md shadow-xl border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+              Download Tech Resume
+            </div>
+            <div className="w-1.5 h-1.5 rounded-full mt-1 bg-transparent" />
+          </motion.div>
         </div>
       </div>
     </div>
@@ -631,12 +781,12 @@ const DesktopIcon = React.memo(function DesktopIcon({ icon, label, onClick, them
       className="flex flex-col items-center cursor-pointer group w-16 md:w-20 active:scale-95 transition-transform"
     >
       <div 
-        className="p-2 md:p-3.5 bg-black/40 border border-white/20 group-hover:bg-green-500/20 group-hover:border-green-400 transition-all shadow-lg" 
+        className="p-2.5 md:p-3.5 rounded-xl bg-black/45 backdrop-blur-md border border-white/20 group-hover:bg-cyan-500/20 group-hover:border-cyan-400/60 transition-all shadow-lg group-hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
         style={{ color: theme.text }}
       >
         {React.cloneElement(icon, { size: 22 })}
       </div>
-      <span className="text-[7px] md:text-[9px] text-white/70 mt-1 font-bold uppercase text-center group-hover:text-white tracking-wider truncate max-w-full">
+      <span className="text-[8px] md:text-[9px] text-white/80 mt-1.5 font-bold uppercase text-center group-hover:text-white tracking-wider truncate max-w-full drop-shadow">
         {label}
       </span>
     </div>
@@ -654,62 +804,79 @@ const ContextMenuItem = ({ icon, label, onClick }) => (
   </div>
 );
 
-// --- START MENU ITEM ---
+// --- START / LAUNCHPAD MENU ITEM ---
 const StartItem = ({ icon, label, onClick }) => (
   <div 
     onClick={() => { soundFx.playClick(); onClick(); }} 
-    className="flex items-center gap-3 px-3 py-1.5 rounded-sm hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white cursor-pointer group transition-all text-slate-900 font-bold"
+    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white cursor-pointer group transition-all text-slate-900 font-semibold"
   >
     <span className="group-hover:text-white transition-colors shrink-0">{icon}</span>
     <span className="text-[11px] tracking-tight group-hover:text-white truncate">{label}</span>
   </div>
 );
 
-// --- RETRO WINDOW COMPONENT ---
+// --- MACOS WINDOW COMPONENT ---
 const Window = React.memo(function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
   return (
     <div 
-      className={`glass-window border-2 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.85)] overflow-hidden ${
-        isMaximized ? 'h-full w-full' : 'h-[75vh] md:h-[530px]'
+      className={`glass-window border flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-150 ${
+        isMaximized ? 'h-full w-full rounded-none border-0' : 'h-[75vh] md:h-[540px] rounded-2xl'
       }`} 
       style={{ 
-        borderColor: theme.border, 
+        borderColor: isMaximized ? 'transparent' : 'rgba(255, 255, 255, 0.18)', 
         minWidth: isMaximized ? 'auto' : '300px', 
         minHeight: isMaximized ? 'auto' : '220px',
-        resize: isMaximized ? 'none' : 'both' 
+        resize: isMaximized ? 'none' : 'both',
+        boxShadow: isMaximized ? 'none' : '0 25px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
       }}
     >
-      {/* WINDOW TITLEBAR */}
+      {/* MACOS WINDOW HEADER / TITLEBAR */}
       <div 
         onDoubleClick={onMaximize}
-        className="bg-white/10 p-2 flex justify-between items-center border-b border-white/10 shrink-0 cursor-grab active:cursor-grabbing select-none"
+        className="bg-black/45 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between border-b border-white/10 shrink-0 cursor-grab active:cursor-grabbing select-none relative"
       >
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          <div className="w-2.5 h-2.5 bg-green-500 border border-black/30 shrink-0" />
-          <span className="text-[9px] md:text-[10px] font-black px-1 text-white/90 uppercase truncate">{title}</span>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* MACOS TRAFFIC LIGHTS */}
+        <div className="flex items-center gap-2 z-10">
+          {/* Close (Red) */}
           <button 
-            onClick={onMinimize} 
-            title="Minimize"
-            className="p-1 hover:bg-white/20 text-white/60 hover:text-white cursor-pointer"
-          >
-            <Minus size={14} />
-          </button>
-          <button 
-            onClick={onMaximize} 
-            title={isMaximized ? "Restore Window" : "Maximize Window"}
-            className="p-1 hover:bg-white/20 text-white/60 hover:text-white cursor-pointer"
-          >
-            {isMaximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-          </button>
-          <button 
-            onClick={onClose} 
+            onClick={(e) => { e.stopPropagation(); onClose(); }} 
             title="Close"
-            className="p-1 hover:bg-red-600 text-white/60 hover:text-white cursor-pointer"
+            className="w-3 h-3 rounded-full bg-[#ff5f56] hover:brightness-110 border border-[#e0443e] flex items-center justify-center group cursor-pointer shadow-sm transition-transform hover:scale-110"
           >
-            <X size={14} />
+            <X size={8} className="text-black/80 opacity-0 group-hover:opacity-100 transition-opacity stroke-[3]" />
           </button>
+          {/* Minimize to Dock (Yellow) */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); onMinimize(); }} 
+            title="Minimize to Dock"
+            className="w-3 h-3 rounded-full bg-[#ffbd2e] hover:brightness-110 border border-[#dea123] flex items-center justify-center group cursor-pointer shadow-sm transition-transform hover:scale-110"
+          >
+            <Minus size={8} className="text-black/80 opacity-0 group-hover:opacity-100 transition-opacity stroke-[3]" />
+          </button>
+          {/* Fullscreen / Zoom (Green) */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); onMaximize(); }} 
+            title={isMaximized ? "Restore Window" : "Full Screen"}
+            className="w-3 h-3 rounded-full bg-[#27c93f] hover:brightness-110 border border-[#1aab29] flex items-center justify-center group cursor-pointer shadow-sm transition-transform hover:scale-110"
+          >
+            {isMaximized ? (
+              <Minimize2 size={7} className="text-black/80 opacity-0 group-hover:opacity-100 transition-opacity stroke-[3]" />
+            ) : (
+              <Maximize2 size={7} className="text-black/80 opacity-0 group-hover:opacity-100 transition-opacity stroke-[3]" />
+            )}
+          </button>
+        </div>
+
+        {/* CENTERED TITLE */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-16">
+          <span className="text-[11px] md:text-xs font-semibold text-white/90 tracking-wide truncate">
+            {title}
+          </span>
+        </div>
+
+        {/* RIGHT CORNER BADGE */}
+        <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono">
+          <span className="hidden sm:inline">macOS &bull; Ventura</span>
         </div>
       </div>
 
