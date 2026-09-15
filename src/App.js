@@ -125,6 +125,12 @@ const handleDownloadCV = () => {
   document.body.removeChild(link);
 };
 
+// --- AUTHENTIC MACOS GENIE LAMP SUCTION POLYGONS (10-VERTEX LIQUID WARP MESH) ---
+const CLIP_RECT = "polygon(0% 0%, 50% 0%, 100% 0%, 100% 50%, 100% 100%, 75% 100%, 50% 100%, 25% 100%, 0% 100%, 0% 50%)";
+const CLIP_GENIE_STAGE1 = "polygon(0% 0%, 50% 0%, 100% 0%, 96% 45%, 68% 90%, 58% 98%, 50% 100%, 42% 98%, 32% 90%, 4% 45%)";
+const CLIP_GENIE_STAGE2 = "polygon(12% 16%, 50% 8%, 88% 16%, 68% 58%, 55% 94%, 53% 99%, 50% 100%, 47% 99%, 45% 94%, 32% 58%)";
+const CLIP_GENIE_DOCK = "polygon(48% 100%, 50% 100%, 52% 100%, 52% 100%, 51% 100%, 50% 100%, 50% 100%, 49% 100%, 48% 100%, 48% 100%)";
+
 // --- TICKER & INSPIRING QUOTES COMPONENT ---
 const StatusTicker = ({ messages }) => {
   const [index, setIndex] = useState(0);
@@ -188,6 +194,20 @@ export default function App() {
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const constraintsRef = useRef(null);
   const startMenuRef = useRef(null);
+  const dockItemRefs = useRef({});
+
+  const getDockDeltaX = (id) => {
+    try {
+      const el = dockItemRefs.current[id];
+      if (!el) return 0;
+      const rect = el.getBoundingClientRect();
+      const screenCenterX = window.innerWidth / 2;
+      const iconCenterX = rect.left + rect.width / 2;
+      return Math.round(iconCenterX - screenCenterX);
+    } catch {
+      return 0;
+    }
+  };
 
   // Close Start / Launchpad Menu on outside click
   useEffect(() => {
@@ -260,6 +280,8 @@ export default function App() {
 
   const closeWindow = (id) => {
     soundFx.playClose();
+    setBouncingApp(id);
+    setTimeout(() => setBouncingApp(null), 650);
     setOpenWindows(prev => prev.filter(w => w !== id));
     setMinimizedWindows(prev => prev.filter(w => w !== id));
     setMaximizedWindows(prev => prev.filter(w => w !== id));
@@ -267,6 +289,8 @@ export default function App() {
 
   const minimizeWindow = (id) => {
     soundFx.playClose();
+    setBouncingApp(id);
+    setTimeout(() => setBouncingApp(null), 650);
     setMinimizedWindows(prev => [...prev, id]);
     setActiveWindow(null);
   };
@@ -553,66 +577,79 @@ export default function App() {
         style={{ perspective: 1200, perspectiveOrigin: "50% 100%" }}
       >
         <AnimatePresence>
-          {openWindows.map((id) => !minimizedWindows.includes(id) && (
-            <motion.div 
-              key={id} 
-              initial={{ 
-                scaleX: 0.12, 
-                scaleY: 0.06, 
-                y: 350, 
-                rotateX: 60,
-                skewX: 0,
-                opacity: 0 
-              }} 
-              animate={{ 
-                scaleX: [0.12, 0.45, 0.85, 1], 
-                scaleY: [0.06, 0.45, 0.85, 1], 
-                y: [350, 180, 40, 0], 
-                rotateX: [60, 35, 12, 0],
-                skewX: [0, 3, -1, 0],
-                opacity: [0, 0.85, 0.98, 1],
-                transition: { 
-                  duration: 0.38, 
-                  times: [0, 0.35, 0.72, 1],
-                  ease: ["easeOut", "easeOut", "easeOut"] 
-                } 
-              }} 
-              exit={{ 
-                scaleX: [1, 0.7, 0.25, 0.08], 
-                scaleY: [1, 0.75, 0.35, 0.04], 
-                y: [0, 70, 200, 350], 
-                rotateX: [0, 20, 45, 65],
-                skewX: [0, -3, 2, 0],
-                opacity: [1, 0.95, 0.7, 0],
-                transition: { 
-                  duration: 0.34, 
-                  times: [0, 0.3, 0.7, 1],
-                  ease: ["easeIn", "easeInOut", "easeIn"] 
-                } 
-              }}
-              onMouseDown={() => setActiveWindow(id)}
-              style={{ 
-                zIndex: activeWindow === id ? 100 : 50, 
-                position: maximizedWindows.includes(id) ? 'absolute' : 'relative',
-                top: maximizedWindows.includes(id) ? 0 : undefined,
-                left: maximizedWindows.includes(id) ? 0 : undefined,
-                right: maximizedWindows.includes(id) ? 0 : undefined,
-                bottom: maximizedWindows.includes(id) ? 0 : undefined,
-                width: maximizedWindows.includes(id) ? '100%' : undefined,
-                height: maximizedWindows.includes(id) ? '100%' : undefined,
-                transformOrigin: 'bottom center',
-                transformStyle: 'preserve-3d',
-                willChange: 'transform, opacity',
-                transform: 'translateZ(0)',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden'
-              }}
-              className={`pointer-events-auto ${
-                maximizedWindows.includes(id) 
-                  ? 'w-full h-full max-w-none' 
-                  : 'w-full max-w-[95%] md:max-w-[720px]'
-              }`}
-            >
+          {openWindows.map((id) => {
+            if (minimizedWindows.includes(id)) return null;
+            const isMax = maximizedWindows.includes(id);
+            const deltaX = getDockDeltaX(id);
+            const skewMagnitude = Math.min(12, Math.max(3, Math.abs(deltaX) / 22));
+            const skewDir = deltaX >= 0 ? 1 : -1;
+
+            return (
+              <motion.div 
+                key={id} 
+                initial={{ 
+                  x: deltaX,
+                  y: 360, 
+                  scaleX: 0.08, 
+                  scaleY: 0.05, 
+                  rotateX: 60,
+                  skewX: 0,
+                  clipPath: CLIP_GENIE_DOCK,
+                  opacity: 0 
+                }} 
+                animate={{ 
+                  x: [deltaX, Math.round(deltaX * 0.65), Math.round(deltaX * 0.2), 0],
+                  y: [360, 240, 75, 0], 
+                  scaleX: [0.08, 0.35, 0.78, 1], 
+                  scaleY: [0.05, 0.38, 0.82, 1], 
+                  rotateX: [60, 40, 15, 0],
+                  skewX: [0, -skewDir * skewMagnitude * 0.7, skewDir * skewMagnitude * 1.1, 0],
+                  clipPath: [CLIP_GENIE_DOCK, CLIP_GENIE_STAGE2, CLIP_GENIE_STAGE1, CLIP_RECT],
+                  opacity: [0, 0.85, 0.98, 1],
+                  transition: { 
+                    duration: 0.44, 
+                    times: [0, 0.32, 0.72, 1],
+                    ease: ["easeOut", "easeInOut", "easeOut"] 
+                  } 
+                }} 
+                exit={{ 
+                  x: [0, Math.round(deltaX * 0.2), Math.round(deltaX * 0.65), deltaX],
+                  y: [0, 75, 240, 360], 
+                  scaleX: [1, 0.78, 0.35, 0.08], 
+                  scaleY: [1, 0.82, 0.38, 0.05], 
+                  rotateX: [0, 15, 40, 60],
+                  skewX: [0, skewDir * skewMagnitude * 1.1, -skewDir * skewMagnitude * 0.7, 0],
+                  clipPath: [CLIP_RECT, CLIP_GENIE_STAGE1, CLIP_GENIE_STAGE2, CLIP_GENIE_DOCK],
+                  opacity: [1, 0.95, 0.7, 0],
+                  transition: { 
+                    duration: 0.40, 
+                    times: [0, 0.28, 0.68, 1],
+                    ease: ["easeIn", "easeInOut", "easeIn"] 
+                  } 
+                }}
+                onMouseDown={() => setActiveWindow(id)}
+                style={{ 
+                  zIndex: activeWindow === id ? 100 : 50, 
+                  position: isMax ? 'absolute' : 'relative',
+                  top: isMax ? 0 : undefined,
+                  left: isMax ? 0 : undefined,
+                  right: isMax ? 0 : undefined,
+                  bottom: isMax ? 0 : undefined,
+                  width: isMax ? '100%' : undefined,
+                  height: isMax ? '100%' : undefined,
+                  transformOrigin: 'bottom center',
+                  transformStyle: 'preserve-3d',
+                  willChange: 'transform, clip-path, opacity',
+                  filter: isMax ? 'none' : 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.75))',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden'
+                }}
+                className={`pointer-events-auto ${
+                  isMax 
+                    ? 'w-full h-full max-w-none' 
+                    : 'w-full max-w-[95%] md:max-w-[720px]'
+                }`}
+              >
               <motion.div 
                 drag={!maximizedWindows.includes(id)}
                 dragConstraints={constraintsRef}
@@ -639,7 +676,8 @@ export default function App() {
                 </Window>
               </motion.div>
             </motion.div>
-          ))}
+          );
+        })}
         </AnimatePresence>
       </div>
 
@@ -755,6 +793,7 @@ export default function App() {
             return (
               <motion.div
                 key={app.id}
+                ref={el => { dockItemRefs.current[app.id] = el; }}
                 animate={bouncingApp === app.id ? { y: [0, -14, 0, -7, 0] } : { y: 0 }}
                 whileHover={{ scale: 1.22, y: -6 }}
                 whileTap={{ scale: 0.88 }}
