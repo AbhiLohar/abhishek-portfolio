@@ -131,6 +131,74 @@ const CLIP_GENIE_STAGE1 = "polygon(0% 0%, 50% 0%, 100% 0%, 96% 45%, 68% 90%, 58%
 const CLIP_GENIE_STAGE2 = "polygon(12% 16%, 50% 8%, 88% 16%, 68% 58%, 55% 94%, 53% 99%, 50% 100%, 47% 99%, 45% 94%, 32% 58%)";
 const CLIP_GENIE_DOCK = "polygon(48% 100%, 50% 100%, 52% 100%, 52% 100%, 51% 100%, 50% 100%, 50% 100%, 49% 100%, 48% 100%, 48% 100%)";
 
+// --- HACKER OS TERMINAL TYPEWRITER FOR FRONT PAGE ---
+const hackerOsLines = [
+  "root@AB-OS:~# initializing kernel v5.2 (Sonoma AI Edition)...",
+  "> MEMORY: 64GB Unified Spatial Array • STATUS: OPTIMAL",
+  "> KERNEL: Abhishek_Kernel.sys (64-Bit x86_64 Architecture)",
+  "> GRAPHICS ENGINE: 3D Spatial Canvas + 60 FPS macOS Genie Suction",
+  "> CORE SYSTEMS: Interactive Zsh CLI, System Monitor & 8-Bit Synth",
+  "> PUBLISHED PACKAGE: pip install local-persona-memory (PyPI Core)",
+  "> CREATOR: Abhishek Lohar (VIT-AP CSE • AI/ML & Full-Stack Engineer)",
+  "> ACCESS CONTROL: Authentication Granted. Ready to launch AB-OS."
+];
+
+const HackerTerminalTypewriter = React.memo(() => {
+  const [displayedLines, setDisplayedLines] = useState([]);
+  const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentLineIndex >= hackerOsLines.length) return;
+
+    const targetLine = hackerOsLines[currentLineIndex];
+    if (currentCharIndex < targetLine.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedLines(prev => {
+          const newLines = [...prev];
+          newLines[currentLineIndex] = targetLine.substring(0, currentCharIndex + 1);
+          return newLines;
+        });
+        setCurrentCharIndex(c => c + 1);
+      }, 16);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setCurrentLineIndex(l => l + 1);
+        setCurrentCharIndex(0);
+      }, 120);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentLineIndex, currentCharIndex]);
+
+  return (
+    <div className="font-mono text-[11px] md:text-xs space-y-1.5 select-none">
+      {displayedLines.map((line, idx) => {
+        let colorClass = "text-green-400";
+        if (line.startsWith("root")) colorClass = "text-cyan-400 font-bold";
+        else if (line.startsWith("> CREATOR")) colorClass = "text-yellow-400 font-bold";
+        else if (line.startsWith("> PUBLISHED")) colorClass = "text-pink-400 font-bold";
+        else if (line.startsWith("> ACCESS")) colorClass = "text-emerald-300 font-bold";
+
+        return (
+          <div key={idx} className="flex items-center gap-1.5 leading-relaxed">
+            <span className={colorClass}>{line}</span>
+            {idx === currentLineIndex && (
+              <span className="inline-block w-2 h-3.5 bg-cyan-400 animate-pulse shrink-0 ml-0.5" />
+            )}
+          </div>
+        );
+      })}
+      {displayedLines.length === 0 && (
+        <div className="flex items-center gap-1">
+          <span className="text-cyan-400 font-bold">root@AB-OS:~#</span>
+          <span className="inline-block w-2 h-3.5 bg-cyan-400 animate-pulse" />
+        </div>
+      )}
+    </div>
+  );
+});
+
 // --- TICKER & INSPIRING QUOTES COMPONENT ---
 const StatusTicker = ({ messages }) => {
   const [index, setIndex] = useState(0);
@@ -402,28 +470,67 @@ export default function App() {
   );
 
   if (bootPhase === 1) return (
-    <div className={`h-screen w-screen flex items-center justify-center font-mono p-4 ${crtEnabled ? 'crt-overlay' : ''}`} style={{ backgroundColor: themes[activeTheme].bg }}>
-      <div className="bg-black border-2 border-white/20 p-6 md:p-10 text-center shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full">
-        <h1 className="text-3xl md:text-4xl font-black text-green-500 mb-1 italic">{userInfo.name}</h1>
-        <p className="text-white/70 text-[10px] tracking-[0.2em] mb-1 uppercase font-bold">VIT-AP &bull; AI & Full-Stack</p>
-        <p className="text-white/40 text-[9px] tracking-[0.4em] mb-8 uppercase">Authorized Access Only</p>
-        <div className="space-y-3">
+    <div 
+      className={`h-screen w-screen relative flex items-center justify-center font-mono p-4 overflow-hidden select-none ${crtEnabled ? 'crt-overlay' : ''}`} 
+      style={{ backgroundColor: themes[activeTheme].bg }}
+    >
+      {/* 3D SPATIAL CANVAS BACKGROUND */}
+      <ThreeDBackground mode={threeDMode} accentColor={themes[activeTheme].border} />
+
+      {/* 3D HOLOGRAPHIC FRONT CARD */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="bg-black/80 backdrop-blur-2xl border-2 border-cyan-500/40 shadow-[0_0_60px_rgba(34,211,238,0.3)] rounded-3xl p-6 md:p-8 max-w-2xl w-full text-center space-y-5 z-10 relative overflow-hidden"
+      >
+        {/* Top Cyber Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 text-[10px] font-bold uppercase tracking-widest shadow-[0_0_12px_rgba(34,211,238,0.2)]">
+          <Sparkles size={12} className="text-yellow-400 animate-pulse" />
+          <span>AB-OS v5.2 Sonoma • Spatial Operating Environment</span>
+        </div>
+
+        {/* Main 3D Title */}
+        <div className="space-y-1">
+          <h1 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent uppercase tracking-tight italic drop-shadow-[0_2px_10px_rgba(34,211,238,0.4)]">
+            WELCOME TO ABHISHEK OS
+          </h1>
+          <p className="text-xs md:text-sm text-white/70 font-semibold tracking-wider uppercase">
+            Interactive AI-Powered Web Operating System &amp; Developer Engine
+          </p>
+        </div>
+
+        {/* Hacker Terminal OS Description Box */}
+        <div className="bg-black/90 border border-green-500/40 rounded-xl p-4 text-left shadow-inner max-h-56 overflow-y-auto no-scrollbar border-l-4 border-l-green-500">
+          <HackerTerminalTypewriter />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-3 pt-1">
           <button 
             onClick={() => { soundFx.playOpen(); setBootPhase(2); }} 
-            className="w-full py-3.5 bg-green-600 text-black font-black uppercase text-xs hover:bg-green-400 active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)]"
+            className="w-full py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black font-black uppercase text-xs md:text-sm tracking-wider rounded-xl transition-all shadow-[0_0_25px_rgba(34,211,238,0.5)] active:scale-98 flex items-center justify-center gap-2 cursor-pointer group"
           >
-            Explore Portfolio &rarr;
+            <Rocket size={18} className="text-black group-hover:translate-x-1 transition-transform" />
+            ENTER ABHISHEK OS WORKSPACE
           </button>
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button onClick={handleDownloadResume} className="w-full py-2.5 border border-white/20 text-white font-bold uppercase text-[9px] hover:bg-white hover:text-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
-              <Download size={12} /> Tech Resume
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button 
+              onClick={handleDownloadResume} 
+              className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold uppercase text-[10px] md:text-xs rounded-xl transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Download size={14} className="text-cyan-400" /> Download Tech Resume (PDF)
             </button>
-            <button onClick={handleDownloadCV} className="w-full py-2.5 border border-green-500/50 text-green-400 font-bold uppercase text-[9px] hover:bg-green-500 hover:text-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
-              <Download size={12} /> General CV
+            <button 
+              onClick={handleDownloadCV} 
+              className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/40 text-green-400 font-bold uppercase text-[10px] md:text-xs rounded-xl transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Download size={14} className="text-green-400" /> Download General CV (PDF)
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 
