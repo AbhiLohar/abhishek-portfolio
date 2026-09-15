@@ -346,7 +346,7 @@ export default function App() {
   const closeWindow = (id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 500);
+    setTimeout(() => setBouncingApp(null), 650);
     setOpenWindows(prev => prev.filter(w => w !== id));
     setMinimizedWindows(prev => prev.filter(w => w !== id));
     setMaximizedWindows(prev => prev.filter(w => w !== id));
@@ -355,7 +355,7 @@ export default function App() {
   const minimizeWindow = (id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 500);
+    setTimeout(() => setBouncingApp(null), 650);
     setMinimizedWindows(prev => [...prev, id]);
     setActiveWindow(null);
   };
@@ -372,7 +372,7 @@ export default function App() {
   const handleDockItemClick = (id) => {
     soundFx.playClick();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 500);
+    setTimeout(() => setBouncingApp(null), 650);
 
     // If clicking the active visible window: toggle minimize to dock
     if (activeWindow === id && !minimizedWindows.includes(id)) {
@@ -696,39 +696,39 @@ export default function App() {
                 key={id} 
                 initial={{ 
                   x: deltaX,
-                  y: 340, 
+                  y: 350, 
                   scaleX: 0.08, 
-                  scaleY: 0.03, 
-                  rotateX: 55,
+                  scaleY: 0.04, 
+                  rotateX: 58,
                   skewX: 0,
                   opacity: 0 
                 }} 
                 animate={{ 
-                  x: [deltaX, Math.round(deltaX * 0.4), 0],
-                  y: [340, 140, 0], 
-                  scaleX: [0.08, 0.45, 1], 
-                  scaleY: [0.03, 0.45, 1], 
-                  rotateX: [55, 20, 0],
-                  skewX: [0, -skewDir * skewMagnitude, 0],
-                  opacity: [0, 0.9, 1],
+                  x: [deltaX, Math.round(deltaX * 0.6), Math.round(deltaX * 0.18), 0],
+                  y: [350, 220, 65, 0], 
+                  scaleX: [0.08, 0.38, 0.82, 1], 
+                  scaleY: [0.04, 0.32, 0.82, 1], 
+                  rotateX: [58, 38, 14, 0],
+                  skewX: [0, -skewDir * skewMagnitude * 0.7, skewDir * skewMagnitude, 0],
+                  opacity: [0, 0.88, 0.98, 1],
                   transition: { 
-                    duration: 0.36, 
-                    times: [0, 0.5, 1],
-                    ease: [0.16, 1, 0.3, 1]
+                    duration: 0.58, 
+                    times: [0, 0.28, 0.68, 1],
+                    ease: ["easeOut", "easeInOut", "easeOut"] 
                   } 
                 }} 
                 exit={{ 
-                  x: [0, Math.round(deltaX * 0.4), deltaX],
-                  y: [0, 140, 340], 
-                  scaleX: [1, 0.45, 0.08], 
-                  scaleY: [1, 0.45, 0.03], 
-                  rotateX: [0, 20, 55],
-                  skewX: [0, skewDir * skewMagnitude, 0],
-                  opacity: [1, 0.85, 0],
+                  x: [0, Math.round(deltaX * 0.18), Math.round(deltaX * 0.6), deltaX],
+                  y: [0, 65, 220, 350], 
+                  scaleX: [1, 0.82, 0.38, 0.08], 
+                  scaleY: [1, 0.82, 0.32, 0.04], 
+                  rotateX: [0, 14, 38, 58],
+                  skewX: [0, skewDir * skewMagnitude, -skewDir * skewMagnitude * 0.7, 0],
+                  opacity: [1, 0.95, 0.75, 0],
                   transition: { 
-                    duration: 0.32, 
-                    times: [0, 0.5, 1],
-                    ease: [0.4, 0, 0.2, 1]
+                    duration: 0.54, 
+                    times: [0, 0.28, 0.68, 1],
+                    ease: ["easeIn", "easeInOut", "easeIn"] 
                   } 
                 }}
                 onMouseDown={() => setActiveWindow(id)}
@@ -901,7 +901,7 @@ export default function App() {
                 whileHover={{ scale: 1.22, y: -6 }}
                 whileTap={{ scale: 0.88 }}
                 transition={bouncingApp === app.id 
-                  ? { duration: 0.48, ease: "easeInOut" }
+                  ? { duration: 0.58, ease: "easeInOut" }
                   : { type: "spring", stiffness: 450, damping: 20 }
                 }
                 className="relative group flex flex-col items-center cursor-pointer shrink-0"
