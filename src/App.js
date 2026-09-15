@@ -18,7 +18,7 @@ const userInfo = {
   phone: "+91 9341852194",
   emailCollege: "abhishek.23bce7356@vitapstudent.ac.in",
   emailPersonal: "abhisheklohar0509@gmail.com",
-  bio: "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience in full-stack development and hardware-software integration.",
+  bio: "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence, Deep Learning, and backend development. Experienced in building AI-powered applications, RAG pipelines, full-stack systems, and scalable software solutions. Passionate about open-source development and solving real-world problems through technology.",
   socials: {
     github: "https://github.com/AbhiLohar",
     linkedin: "https://linkedin.com/in/abhishek-lohar-216099350/"
@@ -37,12 +37,19 @@ const userInfo = {
       degree: "Higher Secondary Education (Class XII)",
       period: "2022",
       grade: "Aggregate: 79.8%"
+    },
+    {
+      institution: "Vidya Bharati Chinmaya Vidyalaya (CBSE)",
+      location: "Jamshedpur, JH",
+      degree: "Secondary Education (Class X)",
+      period: "2020",
+      grade: "Aggregate: 85.8%"
     }
   ],
   skills: {
-    languages: ["Java", "Python", "SQL", "C++", "HTML/CSS", "JavaScript"],
-    aiMl: ["Ollama", "LangChain", "ChromaDB", "RAG", "Embeddings", "LLMs", "OpenCV", "Data Science"],
-    toolsFrameworks: ["Raspberry Pi", "Chrome Extension API", "PyPI", "pytest", "Git", "OpenSource Development"],
+    languages: ["Java", "Python", "SQL", "C++", "JavaScript", "HTML/CSS"],
+    aiMl: ["LLMs", "RAG", "Embeddings", "LangChain", "ChromaDB", "Ollama", "OpenCV", "Data Science"],
+    toolsFrameworks: ["FastAPI", "React", "PostgreSQL", "Redis", "Kafka", "Raspberry Pi", "Git", "pytest", "PyPI", "GitHub Actions", "Open-Source Development"],
     softSkills: ["Leadership", "Creative Thinking", "Problem Solving"]
   },
   projects: [
@@ -51,32 +58,30 @@ const userInfo = {
       tech: "Python, Ollama, ChromaDB, LangChain, RAG", 
       badge: "pip install local-persona-memory",
       link: "https://pypi.org/project/local-persona-memory/",
-      desc: "Published production-grade open-source Python package on PyPI — installable worldwide via pip install local-persona-memory — giving any local LLM permanent long-term memory with zero cloud dependency.",
-      details: "Built full RAG pipeline with ChromaDB vector storage, PDF ingestion, semantic search, conversation history, export/import, and callback hooks. Shipped with 160 passing tests and GitHub Actions CI/CD."
+      desc: "Published an open-source Python package on PyPI that provides local LLMs with persistent long-term memory without cloud dependency.",
+      details: "Built a RAG pipeline with ChromaDB, PDF ingestion, semantic search, conversation history, import/export, and callback hooks; shipped with 160 passing tests and GitHub Actions CI/CD."
+    },
+    { 
+      title: "Fact Knowledge Layer — Document Intelligence System", 
+      tech: "Python, FastAPI, OpenAI, ChromaDB, SQLite, React", 
+      badge: "Enterprise RAG & Doc Intel",
+      desc: "Built an enterprise document intelligence pipeline that extracts atomic, auditable facts from financial PDFs with value, unit, time, scope, source quote, and page-level provenance using GPT-4o mini and Pydantic.",
+      details: "Designed a two-stage reconciliation engine using ChromaDB semantic retrieval to prune irrelevant fact pairs before GPT-4o reasoning, reducing potential O(N^2) comparisons by ~98%. Developed a FastAPI + React application with asynchronous document processing, multi-dimensional fact filtering, evidence views, and an evaluation dashboard."
     },
     { 
       title: "URL Shortener & Analytics Platform", 
       tech: "Python, FastAPI, PostgreSQL, Redis, Kafka", 
       badge: "Microservices Architecture",
-      desc: "Built a microservices-based URL shortener with separate Shorten, Redirect, and Analytics services behind an API gateway to practice service decomposition.",
-      details: "Used PostgreSQL for persistent URL mappings and Redis caching in front of the Redirect service; Kafka streams click events asynchronously to Analytics."
-    },
-    { 
-      title: "Smart Attendance Face Recognition System", 
-      tech: "Raspberry Pi, Python, OpenCV", 
-      badge: "Edge Hardware + CV",
-      desc: "Designed a hardware-software integrated biometric identification system using Raspberry Pi for real-time facial recognition and automated attendance logging.",
-      details: "Utilized OpenCV libraries for facial detection and recognition. Engineered an end-to-end pipeline from image capture to database logging, ensuring 95%+ recognition accuracy."
+      desc: "Built a microservices-based URL shortener with separate Shorten, Redirect, and Analytics services behind an API gateway.",
+      details: "Used PostgreSQL for persistent URL mappings, Redis caching for redirects, and Kafka for asynchronous click-event processing and analytics."
     }
   ],
   certifications: [
     "Oracle Cloud Infrastructure (OCI) Certified AI Foundations Associate",
-    "Coursera Full Stack Web Development",
-    "Infosys Springboard — Introduction to Data Science (May 2026)",
-    "Hashgraph Developer Course",
+    "Finalist – Engineering Clinics 2025",
     "High-Performance Coding (HPC) Certification by IAMNEO",
-    "Finalist in Engineering Clinics (2025)",
-    "Hack2Skill GDG (Google Developer Groups) Hackathons at VIT-AP"
+    "Infosys Springboard — Introduction to Data Science (May 2026)",
+    "Hashgraph Developer Course — Hack2Skill GDG Hackathons at VIT-AP"
   ],
   languages: [
     { name: "Hindi", proficiency: "Native" },
@@ -89,6 +94,7 @@ const statusMessages = [
   "“The best way to predict the future is to invent it.” — Alan Kay",
   "SYSTEM: AB-OS v5.2 Sonoma • 60 FPS Spatial Engine Active",
   "“Simplicity is prerequisite for reliability.” — Edsger W. Dijkstra",
+  "DOC INTEL: Fact Knowledge Layer — Document Intelligence System (FastAPI + ChromaDB + GPT-4o)",
   "PYPI PACKAGE: pip install local-persona-memory (Published by Abhishek)",
   "“Make it work, make it right, make it fast.” — Kent Beck",
   "DOWNLOAD: Official Tech Resume & General CV Available as PDF",
@@ -130,7 +136,7 @@ const hackerOsLines = [
   "> MEMORY: 64GB Unified Spatial Array • STATUS: OPTIMAL",
   "> KERNEL: Abhishek_Kernel.sys (64-Bit x86_64 Architecture)",
   "> GRAPHICS ENGINE: 3D Spatial Canvas + 60 FPS macOS Genie Suction",
-  "> CORE SYSTEMS: Interactive Zsh CLI, System Monitor & 8-Bit Synth",
+  "> FEATURED PROJECT: Fact Knowledge Layer (FastAPI + ChromaDB + GPT-4o)",
   "> PUBLISHED PACKAGE: pip install local-persona-memory (PyPI Core)",
   "> CREATOR: Abhishek Lohar (VIT-AP CSE • AI/ML & Full-Stack Engineer)",
   "> ACCESS CONTROL: Authentication Granted. Ready to launch AB-OS."
@@ -1168,15 +1174,15 @@ const SysInfoApp = React.memo(() => {
       <div className="text-[10px] text-white/70 bg-white/5 p-3 border border-white/10 space-y-1">
         <div className="flex items-center gap-2">
           <Check size={13} className="text-green-400" />
-          <span>Local LLM Vector Memory: <b>ONLINE</b></span>
+          <span>Local LLM Vector Memory (`local-persona-memory` PyPI): <b>ONLINE</b></span>
         </div>
         <div className="flex items-center gap-2">
           <Check size={13} className="text-green-400" />
-          <span>PostgreSQL + Redis Caching Microservice: <b>CONNECTED</b></span>
+          <span>Fact Knowledge Layer (FastAPI + ChromaDB + GPT-4o mini): <b>ACTIVE</b></span>
         </div>
         <div className="flex items-center gap-2">
           <Check size={13} className="text-green-400" />
-          <span>Raspberry Pi Biometric CV Stream: <b>READY</b></span>
+          <span>Microservices URL Shortener (PostgreSQL + Redis + Kafka): <b>CONNECTED</b></span>
         </div>
       </div>
     </div>
@@ -1280,7 +1286,7 @@ const NotepadApp = React.memo(() => {
   };
 
   const readmeText = `=========================================
-WELCOME TO AB-OS v5.1 (PORTFOLIO EDITION)
+WELCOME TO AB-OS v5.2 (PORTFOLIO EDITION)
 Created by: Abhishek Lohar
 Institution: VIT-AP University (B.Tech CSE)
 CGPA: 8.33 / 10.0
@@ -1292,8 +1298,14 @@ and full-stack development.
 
 HIGHLIGHTS:
 - Published PyPI package: local-persona-memory (160 tests, CI/CD)
+- Fact Knowledge Layer — Document Intelligence System (FastAPI + ChromaDB + GPT-4o mini)
 - Microservices URL Shortener (FastAPI, Redis, Kafka, PostgreSQL)
-- Smart Attendance Face Recognition (Raspberry Pi, OpenCV)
+
+Certifications:
+- OCI Certified AI Foundations Associate
+- Finalist - Engineering Clinics 2025
+- High-Performance Coding (HPC) Certification by IAMNEO
+- Infosys Springboard - Intro to Data Science
 
 Feel free to switch to the "SCRATCHPAD.TXT" tab to write
 notes, or use the Contact app to send me a message!
