@@ -272,6 +272,10 @@ export default function App() {
 
   const toggleWindow = (id) => {
     soundFx.playOpen();
+    // Auto-minimize previous active window so only one file/folder is open at a time
+    if (activeWindow && activeWindow !== id && openWindows.includes(activeWindow) && !minimizedWindows.includes(activeWindow)) {
+      setMinimizedWindows(prev => [...new Set([...prev, activeWindow])]);
+    }
     if (!openWindows.includes(id)) setOpenWindows(prev => [...prev, id]);
     setMinimizedWindows(prev => prev.filter(w => w !== id));
     setActiveWindow(id);
@@ -281,7 +285,7 @@ export default function App() {
   const closeWindow = (id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 650);
+    setTimeout(() => setBouncingApp(null), 850);
     setOpenWindows(prev => prev.filter(w => w !== id));
     setMinimizedWindows(prev => prev.filter(w => w !== id));
     setMaximizedWindows(prev => prev.filter(w => w !== id));
@@ -290,7 +294,7 @@ export default function App() {
   const minimizeWindow = (id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 650);
+    setTimeout(() => setBouncingApp(null), 850);
     setMinimizedWindows(prev => [...prev, id]);
     setActiveWindow(null);
   };
@@ -307,20 +311,24 @@ export default function App() {
   const handleDockItemClick = (id) => {
     soundFx.playClick();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 650);
+    setTimeout(() => setBouncingApp(null), 850);
+
+    // If clicking the active visible window: toggle minimize to dock
+    if (activeWindow === id && !minimizedWindows.includes(id)) {
+      minimizeWindow(id);
+      return;
+    }
+
+    // Auto-minimize previous active window so only one window is focused at a time (Stage Manager / single-app focus)
+    if (activeWindow && activeWindow !== id && openWindows.includes(activeWindow) && !minimizedWindows.includes(activeWindow)) {
+      setMinimizedWindows(prev => [...new Set([...prev, activeWindow])]);
+    }
 
     if (!openWindows.includes(id)) {
       setOpenWindows(prev => [...prev, id]);
-      setMinimizedWindows(prev => prev.filter(w => w !== id));
-      setActiveWindow(id);
-    } else if (minimizedWindows.includes(id)) {
-      setMinimizedWindows(prev => prev.filter(w => w !== id));
-      setActiveWindow(id);
-    } else if (activeWindow === id) {
-      minimizeWindow(id);
-    } else {
-      setActiveWindow(id);
     }
+    setMinimizedWindows(prev => prev.filter(w => w !== id));
+    setActiveWindow(id);
   };
 
   const dockApps = [
@@ -607,7 +615,7 @@ export default function App() {
                   clipPath: [CLIP_GENIE_DOCK, CLIP_GENIE_STAGE2, CLIP_GENIE_STAGE1, CLIP_RECT],
                   opacity: [0, 0.85, 0.98, 1],
                   transition: { 
-                    duration: 0.44, 
+                    duration: 0.72, 
                     times: [0, 0.32, 0.72, 1],
                     ease: ["easeOut", "easeInOut", "easeOut"] 
                   } 
@@ -622,15 +630,15 @@ export default function App() {
                   clipPath: [CLIP_RECT, CLIP_GENIE_STAGE1, CLIP_GENIE_STAGE2, CLIP_GENIE_DOCK],
                   opacity: [1, 0.95, 0.7, 0],
                   transition: { 
-                    duration: 0.40, 
+                    duration: 0.68, 
                     times: [0, 0.28, 0.68, 1],
                     ease: ["easeIn", "easeInOut", "easeIn"] 
                   } 
                 }}
                 onMouseDown={() => setActiveWindow(id)}
                 style={{ 
-                  zIndex: activeWindow === id ? 100 : 50, 
-                  position: isMax ? 'absolute' : 'relative',
+                  zIndex: activeWindow === id ? 100 : (50 + openWindows.indexOf(id)), 
+                  position: 'absolute',
                   top: isMax ? 0 : undefined,
                   left: isMax ? 0 : undefined,
                   right: isMax ? 0 : undefined,
@@ -798,7 +806,7 @@ export default function App() {
                 whileHover={{ scale: 1.22, y: -6 }}
                 whileTap={{ scale: 0.88 }}
                 transition={bouncingApp === app.id 
-                  ? { duration: 0.55, ease: "easeInOut" }
+                  ? { duration: 0.70, ease: "easeInOut" }
                   : { type: "spring", stiffness: 450, damping: 20 }
                 }
                 className="relative group flex flex-col items-center cursor-pointer shrink-0"
