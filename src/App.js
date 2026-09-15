@@ -278,6 +278,8 @@ export default function App() {
     );
   };
 
+  const hasMaximized = openWindows.some(id => !minimizedWindows.includes(id) && maximizedWindows.includes(id));
+
   const handleDockItemClick = (id) => {
     soundFx.playClick();
     setBouncingApp(id);
@@ -521,8 +523,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* DESKTOP ICONS GRID */}
-      <div className="absolute left-4 top-10 md:left-6 md:top-12 grid grid-cols-2 md:grid-cols-1 gap-x-4 gap-y-5 md:gap-y-6 z-10 overflow-y-auto max-h-[calc(100vh-140px)] p-1 no-scrollbar">
+      {/* DESKTOP ICONS GRID (BELOW WINDOWS, AUTO-HIDDEN WHEN MAXIMIZED) */}
+      <div 
+        className={`absolute left-4 top-10 md:left-6 md:top-12 grid grid-cols-2 md:grid-cols-1 gap-x-4 gap-y-5 md:gap-y-6 z-[1] overflow-y-auto max-h-[calc(100vh-140px)] p-1 no-scrollbar transition-all duration-300 ${
+          hasMaximized 
+            ? 'opacity-0 pointer-events-none -translate-x-8 invisible' 
+            : 'opacity-100 translate-x-0'
+        }`}
+      >
         <DesktopIcon theme={themes[activeTheme]} icon={<User />} label="About" onClick={() => toggleWindow('about')} />
         <DesktopIcon theme={themes[activeTheme]} icon={<Briefcase />} label="Projects" onClick={() => toggleWindow('projects')} />
         <DesktopIcon theme={themes[activeTheme]} icon={<Eye />} label="Resume" onClick={() => toggleWindow('resume')} />
@@ -537,7 +545,11 @@ export default function App() {
 
       {/* WINDOW DISPLAY CONTAINER (MACOS 3D FOLDING GENIE ENGINE) */}
       <div 
-        className="absolute inset-0 flex items-center justify-center pointer-events-none p-2 md:p-4 overflow-hidden top-7 bottom-20"
+        className={`absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-[30] transition-[padding] duration-200 ${
+          hasMaximized 
+            ? 'top-7 bottom-[76px] p-0' 
+            : 'top-7 bottom-20 p-2 md:p-4'
+        }`}
         style={{ perspective: 1200, perspectiveOrigin: "50% 100%" }}
       >
         <AnimatePresence>
@@ -581,11 +593,13 @@ export default function App() {
               onMouseDown={() => setActiveWindow(id)}
               style={{ 
                 zIndex: activeWindow === id ? 100 : 50, 
-                position: maximizedWindows.includes(id) ? 'fixed' : 'absolute',
-                top: maximizedWindows.includes(id) ? '28px' : undefined,
+                position: maximizedWindows.includes(id) ? 'absolute' : 'relative',
+                top: maximizedWindows.includes(id) ? 0 : undefined,
                 left: maximizedWindows.includes(id) ? 0 : undefined,
                 right: maximizedWindows.includes(id) ? 0 : undefined,
-                bottom: maximizedWindows.includes(id) ? '76px' : undefined,
+                bottom: maximizedWindows.includes(id) ? 0 : undefined,
+                width: maximizedWindows.includes(id) ? '100%' : undefined,
+                height: maximizedWindows.includes(id) ? '100%' : undefined,
                 transformOrigin: 'bottom center',
                 transformStyle: 'preserve-3d',
                 willChange: 'transform, opacity',
@@ -595,7 +609,7 @@ export default function App() {
               }}
               className={`pointer-events-auto ${
                 maximizedWindows.includes(id) 
-                  ? 'w-full h-[calc(100vh-104px)] max-w-none' 
+                  ? 'w-full h-full max-w-none' 
                   : 'w-full max-w-[95%] md:max-w-[720px]'
               }`}
             >
@@ -860,8 +874,10 @@ const StartItem = ({ icon, label, onClick }) => (
 const Window = React.memo(function Window({ title, children, onClose, onMinimize, onMaximize, isMaximized, theme }) {
   return (
     <div 
-      className={`glass-window border flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden ${
-        isMaximized ? 'h-full w-full rounded-none border-0' : 'h-[75vh] md:h-[540px] rounded-2xl'
+      className={`glass-window border flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden transition-[border-radius] duration-200 ${
+        isMaximized 
+          ? 'h-full w-full rounded-none border-0 bg-[#080911] text-slate-100' 
+          : 'h-[75vh] md:h-[540px] rounded-2xl bg-[#0c0d16]/96'
       }`} 
       style={{ 
         borderColor: isMaximized ? 'transparent' : 'rgba(255, 255, 255, 0.18)', 
@@ -874,7 +890,9 @@ const Window = React.memo(function Window({ title, children, onClose, onMinimize
       {/* MACOS WINDOW HEADER / TITLEBAR */}
       <div 
         onDoubleClick={onMaximize}
-        className="bg-black/45 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between border-b border-white/10 shrink-0 cursor-grab active:cursor-grabbing select-none relative"
+        className={`bg-black/60 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between border-b border-white/10 shrink-0 select-none relative ${
+          isMaximized ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
+        }`}
       >
         {/* MACOS TRAFFIC LIGHTS */}
         <div className="flex items-center gap-2 z-10">
@@ -922,7 +940,7 @@ const Window = React.memo(function Window({ title, children, onClose, onMinimize
       </div>
 
       {/* WINDOW CONTENT */}
-      <div className="p-4 md:p-8 flex-1 overflow-y-auto">{children}</div>
+      <div className={`p-4 md:p-8 flex-1 overflow-y-auto ${isMaximized ? 'max-w-6xl mx-auto w-full' : ''}`}>{children}</div>
     </div>
   );
 });
