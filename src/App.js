@@ -124,13 +124,6 @@ const handleDownloadCV = () => {
   link.click();
   document.body.removeChild(link);
 };
-
-// --- AUTHENTIC MACOS GENIE LAMP SUCTION POLYGONS (10-VERTEX LIQUID WARP MESH) ---
-const CLIP_RECT = "polygon(0% 0%, 50% 0%, 100% 0%, 100% 50%, 100% 100%, 75% 100%, 50% 100%, 25% 100%, 0% 100%, 0% 50%)";
-const CLIP_GENIE_STAGE1 = "polygon(0% 0%, 50% 0%, 100% 0%, 96% 45%, 68% 90%, 58% 98%, 50% 100%, 42% 98%, 32% 90%, 4% 45%)";
-const CLIP_GENIE_STAGE2 = "polygon(12% 16%, 50% 8%, 88% 16%, 68% 58%, 55% 94%, 53% 99%, 50% 100%, 47% 99%, 45% 94%, 32% 58%)";
-const CLIP_GENIE_DOCK = "polygon(48% 100%, 50% 100%, 52% 100%, 52% 100%, 51% 100%, 50% 100%, 50% 100%, 49% 100%, 48% 100%, 48% 100%)";
-
 // --- HACKER OS TERMINAL TYPEWRITER FOR FRONT PAGE ---
 const hackerOsLines = [
   "root@AB-OS:~# initializing kernel v5.2 (Sonoma AI Edition)...",
@@ -703,41 +696,38 @@ export default function App() {
                 key={id} 
                 initial={{ 
                   x: deltaX,
-                  y: 320, 
+                  y: 340, 
                   scaleX: 0.08, 
-                  scaleY: 0.04, 
-                  rotateX: 50,
+                  scaleY: 0.03, 
+                  rotateX: 55,
                   skewX: 0,
-                  clipPath: CLIP_GENIE_DOCK,
                   opacity: 0 
                 }} 
                 animate={{ 
-                  x: [deltaX, Math.round(deltaX * 0.5), Math.round(deltaX * 0.15), 0],
-                  y: [320, 200, 60, 0], 
-                  scaleX: [0.08, 0.35, 0.8, 1], 
-                  scaleY: [0.04, 0.38, 0.85, 1], 
-                  rotateX: [50, 30, 10, 0],
-                  skewX: [0, -skewDir * skewMagnitude * 0.6, skewDir * skewMagnitude, 0],
-                  clipPath: [CLIP_GENIE_DOCK, CLIP_GENIE_STAGE2, CLIP_GENIE_STAGE1, CLIP_RECT],
-                  opacity: [0, 0.85, 0.98, 1],
+                  x: [deltaX, Math.round(deltaX * 0.4), 0],
+                  y: [340, 140, 0], 
+                  scaleX: [0.08, 0.45, 1], 
+                  scaleY: [0.03, 0.45, 1], 
+                  rotateX: [55, 20, 0],
+                  skewX: [0, -skewDir * skewMagnitude, 0],
+                  opacity: [0, 0.9, 1],
                   transition: { 
-                    duration: 0.44, 
-                    times: [0, 0.3, 0.7, 1],
+                    duration: 0.36, 
+                    times: [0, 0.5, 1],
                     ease: [0.16, 1, 0.3, 1]
                   } 
                 }} 
                 exit={{ 
-                  x: [0, Math.round(deltaX * 0.15), Math.round(deltaX * 0.5), deltaX],
-                  y: [0, 60, 200, 320], 
-                  scaleX: [1, 0.8, 0.35, 0.08], 
-                  scaleY: [1, 0.85, 0.38, 0.04], 
-                  rotateX: [0, 10, 30, 50],
-                  skewX: [0, skewDir * skewMagnitude, -skewDir * skewMagnitude * 0.6, 0],
-                  clipPath: [CLIP_RECT, CLIP_GENIE_STAGE1, CLIP_GENIE_STAGE2, CLIP_GENIE_DOCK],
-                  opacity: [1, 0.95, 0.7, 0],
+                  x: [0, Math.round(deltaX * 0.4), deltaX],
+                  y: [0, 140, 340], 
+                  scaleX: [1, 0.45, 0.08], 
+                  scaleY: [1, 0.45, 0.03], 
+                  rotateX: [0, 20, 55],
+                  skewX: [0, skewDir * skewMagnitude, 0],
+                  opacity: [1, 0.85, 0],
                   transition: { 
-                    duration: 0.38, 
-                    times: [0, 0.3, 0.7, 1],
+                    duration: 0.32, 
+                    times: [0, 0.5, 1],
                     ease: [0.4, 0, 0.2, 1]
                   } 
                 }}
@@ -753,7 +743,7 @@ export default function App() {
                   height: isMax ? '100%' : undefined,
                   transformOrigin: 'bottom center',
                   transformStyle: 'preserve-3d',
-                  willChange: 'transform, clip-path, opacity',
+                  willChange: 'transform, opacity',
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden'
                 }}
