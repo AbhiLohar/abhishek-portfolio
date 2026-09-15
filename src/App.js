@@ -181,9 +181,10 @@ export default function App() {
   const [activeTheme, setActiveTheme] = useState('deepSea');
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [showTicker] = useState(true); 
-  const [crtEnabled, setCrtEnabled] = useState(true);
+  const [crtEnabled, setCrtEnabled] = useState(false);
   const [threeDMode, setThreeDMode] = useState('neural');
   const [isMuted, setIsMuted] = useState(false);
+  const [bouncingApp, setBouncingApp] = useState(null);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const constraintsRef = useRef(null);
   const startMenuRef = useRef(null);
@@ -279,6 +280,9 @@ export default function App() {
 
   const handleDockItemClick = (id) => {
     soundFx.playClick();
+    setBouncingApp(id);
+    setTimeout(() => setBouncingApp(null), 650);
+
     if (!openWindows.includes(id)) {
       setOpenWindows(prev => [...prev, id]);
       setMinimizedWindows(prev => prev.filter(w => w !== id));
@@ -451,7 +455,7 @@ export default function App() {
 
           {/* Live System Quotes & Status Ticker in Menu Bar */}
           {showTicker && (
-            <div className="hidden md:flex items-center bg-black/60 border border-cyan-400/40 px-3 py-0.5 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.25)] max-w-[280px] lg:max-w-[420px] overflow-hidden">
+            <div className="hidden sm:flex items-center bg-black/75 border border-cyan-400/50 px-2.5 py-0.5 rounded-full shadow-[0_0_14px_rgba(34,211,238,0.35)] max-w-[200px] sm:max-w-[300px] lg:max-w-[460px] overflow-hidden">
               <StatusTicker messages={statusMessages} />
             </div>
           )}
@@ -531,27 +535,48 @@ export default function App() {
         <DesktopIcon theme={themes[activeTheme]} icon={<Mail />} label="Contact" onClick={() => toggleWindow('contact')} />
       </div>
 
-      {/* WINDOW DISPLAY CONTAINER (MACOS GENIE / SCALE EFFECT) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-2 md:p-4 overflow-hidden top-7 bottom-20">
+      {/* WINDOW DISPLAY CONTAINER (MACOS 3D FOLDING GENIE ENGINE) */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none p-2 md:p-4 overflow-hidden top-7 bottom-20"
+        style={{ perspective: 1200, perspectiveOrigin: "50% 100%" }}
+      >
         <AnimatePresence>
           {openWindows.map((id) => !minimizedWindows.includes(id) && (
             <motion.div 
               key={id} 
-              drag={!maximizedWindows.includes(id)}
-              dragConstraints={constraintsRef}
-              dragMomentum={false}
-              initial={{ scale: 0.18, y: 260, opacity: 0 }} 
+              initial={{ 
+                scaleX: 0.12, 
+                scaleY: 0.06, 
+                y: 350, 
+                rotateX: 60,
+                skewX: 0,
+                opacity: 0 
+              }} 
               animate={{ 
-                scale: 1, 
-                y: 0, 
-                opacity: 1,
-                transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] } 
+                scaleX: [0.12, 0.45, 0.85, 1], 
+                scaleY: [0.06, 0.45, 0.85, 1], 
+                y: [350, 180, 40, 0], 
+                rotateX: [60, 35, 12, 0],
+                skewX: [0, 3, -1, 0],
+                opacity: [0, 0.85, 0.98, 1],
+                transition: { 
+                  duration: 0.38, 
+                  times: [0, 0.35, 0.72, 1],
+                  ease: ["easeOut", "easeOut", "easeOut"] 
+                } 
               }} 
               exit={{ 
-                scale: 0.14, 
-                y: 280, 
-                opacity: 0, 
-                transition: { duration: 0.22, ease: [0.4, 0, 0.2, 1] } 
+                scaleX: [1, 0.7, 0.25, 0.08], 
+                scaleY: [1, 0.75, 0.35, 0.04], 
+                y: [0, 70, 200, 350], 
+                rotateX: [0, 20, 45, 65],
+                skewX: [0, -3, 2, 0],
+                opacity: [1, 0.95, 0.7, 0],
+                transition: { 
+                  duration: 0.34, 
+                  times: [0, 0.3, 0.7, 1],
+                  ease: ["easeIn", "easeInOut", "easeIn"] 
+                } 
               }}
               onMouseDown={() => setActiveWindow(id)}
               style={{ 
@@ -562,6 +587,7 @@ export default function App() {
                 right: maximizedWindows.includes(id) ? 0 : undefined,
                 bottom: maximizedWindows.includes(id) ? '76px' : undefined,
                 transformOrigin: 'bottom center',
+                transformStyle: 'preserve-3d',
                 willChange: 'transform, opacity',
                 transform: 'translateZ(0)',
                 backfaceVisibility: 'hidden',
@@ -573,24 +599,31 @@ export default function App() {
                   : 'w-full max-w-[95%] md:max-w-[720px]'
               }`}
             >
-              <Window 
-                theme={themes[activeTheme]} 
-                title={id.toUpperCase() + ".app"} 
-                isMaximized={maximizedWindows.includes(id)}
-                onClose={() => closeWindow(id)}
-                onMinimize={() => minimizeWindow(id)}
-                onMaximize={() => toggleMaximizeWindow(id)}
+              <motion.div 
+                drag={!maximizedWindows.includes(id)}
+                dragConstraints={constraintsRef}
+                dragMomentum={false}
+                className="w-full h-full"
               >
-                {id === 'about' && <AboutContent />}
-                {id === 'projects' && <ProjectList />}
-                {id === 'resume' && <ResumePreview />}
-                {id === 'sysinfo' && <SysInfoApp />}
-                {id === 'player' && <RetroPlayerApp />}
-                {id === 'notepad' && <NotepadApp />}
-                {id === 'snake' && <SnakeGame />}
-                {id === 'contact' && <ContactContent />}
-                {id === 'terminal' && <Terminal onOpen={toggleWindow} onSet3DMode={setThreeDMode} />}
-              </Window>
+                <Window 
+                  theme={themes[activeTheme]} 
+                  title={id.toUpperCase() + ".app"} 
+                  isMaximized={maximizedWindows.includes(id)}
+                  onClose={() => closeWindow(id)}
+                  onMinimize={() => minimizeWindow(id)}
+                  onMaximize={() => toggleMaximizeWindow(id)}
+                >
+                  {id === 'about' && <AboutContent />}
+                  {id === 'projects' && <ProjectList />}
+                  {id === 'resume' && <ResumePreview />}
+                  {id === 'sysinfo' && <SysInfoApp />}
+                  {id === 'player' && <RetroPlayerApp />}
+                  {id === 'notepad' && <NotepadApp />}
+                  {id === 'snake' && <SnakeGame />}
+                  {id === 'contact' && <ContactContent />}
+                  {id === 'terminal' && <Terminal onOpen={toggleWindow} onSet3DMode={setThreeDMode} />}
+                </Window>
+              </motion.div>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -708,9 +741,13 @@ export default function App() {
             return (
               <motion.div
                 key={app.id}
+                animate={bouncingApp === app.id ? { y: [0, -14, 0, -7, 0] } : { y: 0 }}
                 whileHover={{ scale: 1.22, y: -6 }}
                 whileTap={{ scale: 0.88 }}
-                transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                transition={bouncingApp === app.id 
+                  ? { duration: 0.55, ease: "easeInOut" }
+                  : { type: "spring", stiffness: 450, damping: 20 }
+                }
                 className="relative group flex flex-col items-center cursor-pointer shrink-0"
                 onClick={() => handleDockItemClick(app.id)}
               >
