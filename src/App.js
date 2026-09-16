@@ -245,13 +245,7 @@ const SystemClock = React.memo(() => {
 });
 
 export default function App() {
-  const [bootPhase, setBootPhase] = useState(() => {
-    try {
-      return sessionStorage.getItem('abos_session_booted') === '1' ? 2 : 0;
-    } catch {
-      return 0;
-    }
-  }); 
+  const [bootPhase, setBootPhase] = useState(0); 
   const [loadProgress, setLoadProgress] = useState(0);
   const [openWindows, setOpenWindows] = useState(['about']);
   const [minimizedWindows, setMinimizedWindows] = useState([]);
@@ -304,7 +298,7 @@ export default function App() {
     };
   }, [startMenuOpen]);
 
-  // Lightning-Fast BIOS loader with Session Cache
+  // Moderate & Clear BIOS loader (550ms smooth boot with click-to-skip)
   useEffect(() => {
     if (bootPhase === 0) {
       let isCancelled = false;
@@ -328,13 +322,13 @@ export default function App() {
               setTimeout(() => {
                 soundFx.playBoot();
                 setBootPhase(1);
-              }, 40);
+              }, 180);
             }
             return 100; 
           }
-          return Math.min(100, prev + 15);
+          return Math.min(100, prev + 4);
         });
-      }, 12);
+      }, 22);
 
       return () => {
         isCancelled = true;
@@ -712,10 +706,10 @@ export default function App() {
                 key={id} 
                 initial={{ 
                   x: deltaX,
-                  y: 280, 
-                  scaleX: 0.15, 
-                  scaleY: 0.08, 
-                  rotateX: 45,
+                  y: 300, 
+                  scaleX: 0.12, 
+                  scaleY: 0.05, 
+                  rotateX: 48,
                   opacity: 0 
                 }} 
                 animate={{ 
@@ -726,20 +720,20 @@ export default function App() {
                   rotateX: 0,
                   opacity: 1,
                   transition: { 
-                    duration: 0.32, 
-                    ease: [0.16, 1, 0.3, 1]
+                    duration: 0.50, 
+                    ease: [0.22, 1, 0.36, 1]
                   } 
                 }} 
                 exit={{ 
                   x: deltaX,
-                  y: 280, 
-                  scaleX: 0.15, 
-                  scaleY: 0.08, 
-                  rotateX: 45,
+                  y: 300, 
+                  scaleX: 0.12, 
+                  scaleY: 0.05, 
+                  rotateX: 48,
                   opacity: 0,
                   transition: { 
-                    duration: 0.28, 
-                    ease: [0.7, 0, 0.84, 0] 
+                    duration: 0.45, 
+                    ease: [0.32, 0, 0.67, 0] 
                   } 
                 }}
                 onMouseDown={() => {
