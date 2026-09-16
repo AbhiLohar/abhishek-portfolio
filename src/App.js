@@ -1745,12 +1745,17 @@ const ContactContent = React.memo(() => {
       return;
     }
 
-    setIsSending(true);
-
     const serviceID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
     const adminTemplateID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
     const userTemplateID = process.env.REACT_APP_EMAILJS_CONFIRMATION_TEMPLATE_ID;
     const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceID || !adminTemplateID || !publicKey) {
+      setErrorMsg("EmailJS API Keys not configured in Netlify. Click below to send via Direct Email or WhatsApp.");
+      return;
+    }
+
+    setIsSending(true);
 
     const templateParams = {
       name: formData.name,
@@ -1759,12 +1764,15 @@ const ContactContent = React.memo(() => {
     };
 
     try {
-      await Promise.all([
-        emailjs.send(serviceID, adminTemplateID, templateParams, publicKey),
-        formData.contact.includes('@') 
-          ? emailjs.send(serviceID, userTemplateID, templateParams, publicKey)
-          : Promise.resolve() 
-      ]);
+      // Primary notification email
+      await emailjs.send(serviceID, adminTemplateID, templateParams, publicKey);
+
+      // Optional user confirmation email (safely caught so missing template never breaks submission)
+      if (formData.contact.includes('@') && userTemplateID) {
+        emailjs.send(serviceID, userTemplateID, templateParams, publicKey).catch(err => {
+          console.warn("Optional user confirmation email skipped/failed:", err);
+        });
+      }
 
       setIsSent(true);
       setErrorMsg(null);
