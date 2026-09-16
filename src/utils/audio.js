@@ -1,4 +1,4 @@
-// 8-Bit Web Audio API Synthesizer (Zero External Audio Dependencies)
+// Ultra-Fast 8-Bit Web Audio API Synthesizer (Zero External Dependencies & Zero Latency)
 class RetroAudioEngine {
   constructor() {
     this.ctx = null;
@@ -8,6 +8,7 @@ class RetroAudioEngine {
   }
 
   init() {
+    if (this.isMuted) return;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
@@ -15,7 +16,7 @@ class RetroAudioEngine {
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {});
     }
   }
 
@@ -35,71 +36,69 @@ class RetroAudioEngine {
     if (this.isMuted) return;
     try {
       this.init();
-      if (!this.ctx) return;
+      if (!this.ctx || this.ctx.state !== 'running') return;
+      const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = type;
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + duration);
+      osc.start(now);
+      osc.stop(now + duration);
     } catch (e) {
-      // Audio autoplay policy fallback
+      // Audio policy fallback
     }
   }
 
-  // UI Sound Effects
+  // UI Sound Effects (Non-blocking)
   playClick() {
-    this.playTone(850, 0.04, 'square', 0.04);
+    if (this.isMuted) return;
+    this.playTone(850, 0.03, 'square', 0.03);
   }
 
   playOpen() {
     if (this.isMuted) return;
-    this.init();
-    [523.25, 659.25, 783.99].forEach((freq, idx) => {
-      setTimeout(() => this.playTone(freq, 0.07, 'triangle', 0.06), idx * 45);
-    });
+    this.playTone(523.25, 0.05, 'triangle', 0.05);
+    setTimeout(() => this.playTone(659.25, 0.05, 'triangle', 0.05), 30);
+    setTimeout(() => this.playTone(783.99, 0.06, 'triangle', 0.05), 60);
   }
 
   playClose() {
     if (this.isMuted) return;
-    this.init();
-    [783.99, 659.25, 523.25].forEach((freq, idx) => {
-      setTimeout(() => this.playTone(freq, 0.06, 'sawtooth', 0.04), idx * 40);
-    });
+    this.playTone(783.99, 0.05, 'sawtooth', 0.03);
+    setTimeout(() => this.playTone(523.25, 0.05, 'sawtooth', 0.03), 30);
   }
 
   playMaximize() {
     if (this.isMuted) return;
-    this.init();
-    [440, 554.37, 659.25, 880].forEach((freq, idx) => {
-      setTimeout(() => this.playTone(freq, 0.08, 'sine', 0.07), idx * 35);
-    });
+    this.playTone(440, 0.05, 'sine', 0.05);
+    setTimeout(() => this.playTone(880, 0.06, 'sine', 0.05), 30);
   }
 
   playBoot() {
     if (this.isMuted) return;
     this.init();
     const chord = [261.63, 329.63, 392.00, 523.25];
-    chord.forEach(freq => this.playTone(freq, 0.9, 'triangle', 0.06));
+    chord.forEach(freq => this.playTone(freq, 0.6, 'triangle', 0.05));
   }
 
   playSnakeEat() {
-    this.playTone(987.77, 0.08, 'sine', 0.08);
-    setTimeout(() => this.playTone(1318.51, 0.12, 'sine', 0.08), 50);
+    if (this.isMuted) return;
+    this.playTone(987.77, 0.06, 'sine', 0.07);
   }
 
   playGameOver() {
-    this.playTone(330, 0.15, 'sawtooth', 0.08);
-    setTimeout(() => this.playTone(220, 0.25, 'sawtooth', 0.09), 120);
-    setTimeout(() => this.playTone(110, 0.45, 'sawtooth', 0.1), 320);
+    if (this.isMuted) return;
+    this.playTone(330, 0.12, 'sawtooth', 0.07);
+    setTimeout(() => this.playTone(110, 0.3, 'sawtooth', 0.08), 100);
   }
 
   playBeep() {
-    this.playTone(440, 0.1, 'square', 0.06);
+    if (this.isMuted) return;
+    this.playTone(440, 0.08, 'square', 0.05);
   }
 
   // Ambient 8-Bit Melody Sequencer for RetroPlayer
@@ -109,7 +108,6 @@ class RetroAudioEngine {
     this.stopMusic();
     this.musicPlaying = true;
     
-    // Pentatonic ambient scale in A minor
     const notes = [220, 261.63, 293.66, 329.63, 392.00, 440, 523.25];
     let step = 0;
 
@@ -118,9 +116,9 @@ class RetroAudioEngine {
       const note = notes[step % notes.length];
       const bassNote = notes[(step % 4) * 2] / 2;
       
-      this.playTone(bassNote, 0.18, 'triangle', 0.05);
+      this.playTone(bassNote, 0.15, 'triangle', 0.04);
       if (step % 2 === 0) {
-        this.playTone(note, 0.14, 'sine', 0.04);
+        this.playTone(note, 0.12, 'sine', 0.03);
       }
       if (onBeat) onBeat((step % 8) + 1);
       step++;

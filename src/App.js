@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import emailjs from '@emailjs/browser';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -245,7 +245,13 @@ const SystemClock = React.memo(() => {
 });
 
 export default function App() {
-  const [bootPhase, setBootPhase] = useState(0); 
+  const [bootPhase, setBootPhase] = useState(() => {
+    try {
+      return sessionStorage.getItem('abos_session_booted') === '1' ? 2 : 0;
+    } catch {
+      return 0;
+    }
+  }); 
   const [loadProgress, setLoadProgress] = useState(0);
   const [openWindows, setOpenWindows] = useState(['about']);
   const [minimizedWindows, setMinimizedWindows] = useState([]);
@@ -263,7 +269,7 @@ export default function App() {
   const startMenuRef = useRef(null);
   const dockItemRefs = useRef({});
 
-  const getDockDeltaX = (id) => {
+  const getDockDeltaX = useCallback((id) => {
     try {
       const el = dockItemRefs.current[id];
       if (!el) return 0;
@@ -274,7 +280,7 @@ export default function App() {
     } catch {
       return 0;
     }
-  };
+  }, []);
 
   // Close Start / Launchpad Menu on outside click
   useEffect(() => {
@@ -298,7 +304,7 @@ export default function App() {
     };
   }, [startMenuOpen]);
 
-  // Smooth & Snappy BIOS loader
+  // Lightning-Fast BIOS loader with Session Cache
   useEffect(() => {
     if (bootPhase === 0) {
       let isCancelled = false;
@@ -309,8 +315,9 @@ export default function App() {
         setBootPhase(1);
       };
 
-      const handleKeyDown = () => skip();
-      window.addEventListener('keydown', handleKeyDown);
+      const handleSkip = () => skip();
+      window.addEventListener('keydown', handleSkip);
+      window.addEventListener('pointerdown', handleSkip);
 
       const interval = setInterval(() => {
         setLoadProgress(prev => {
@@ -321,57 +328,62 @@ export default function App() {
               setTimeout(() => {
                 soundFx.playBoot();
                 setBootPhase(1);
-              }, 250);
+              }, 40);
             }
             return 100; 
           }
-          return Math.min(100, prev + 3);
+          return Math.min(100, prev + 15);
         });
-      }, 40);
+      }, 12);
 
       return () => {
         isCancelled = true;
         clearInterval(interval);
-        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keydown', handleSkip);
+        window.removeEventListener('pointerdown', handleSkip);
       };
     }
   }, [bootPhase]);
 
-  const toggleWindow = (id) => {
+  const enterWorkspace = useCallback(() => {
     soundFx.playOpen();
-    // Auto-minimize previous active window so only one file/folder is open at a time
-    if (activeWindow && activeWindow !== id && openWindows.includes(activeWindow) && !minimizedWindows.includes(activeWindow)) {
-      setMinimizedWindows(prev => [...new Set([...prev, activeWindow])]);
-    }
-    if (!openWindows.includes(id)) setOpenWindows(prev => [...prev, id]);
-    setMinimizedWindows(prev => prev.filter(w => w !== id));
-    setActiveWindow(id);
-    setStartMenuOpen(false);
-  };
+    try {
+      sessionStorage.setItem('abos_session_booted', '1');
+    } catch {}
+    setBootPhase(2);
+  }, []);
 
-  const closeWindow = (id) => {
+  const toggleWindow = useCallback((id) => {
+    soundFx.playOpen();
+    setActiveWindow(id);
+    setOpenWindows(prev => (prev.includes(id) ? prev : [...prev, id]));
+    setMinimizedWindows(prev => prev.filter(w => w !== id));
+    setStartMenuOpen(false);
+  }, []);
+
+  const closeWindow = useCallback((id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 650);
+    setTimeout(() => setBouncingApp(null), 400);
     setOpenWindows(prev => prev.filter(w => w !== id));
     setMinimizedWindows(prev => prev.filter(w => w !== id));
     setMaximizedWindows(prev => prev.filter(w => w !== id));
-  };
+  }, []);
 
-  const minimizeWindow = (id) => {
+  const minimizeWindow = useCallback((id) => {
     soundFx.playClose();
     setBouncingApp(id);
-    setTimeout(() => setBouncingApp(null), 650);
-    setMinimizedWindows(prev => [...prev, id]);
+    setTimeout(() => setBouncingApp(null), 400);
+    setMinimizedWindows(prev => (prev.includes(id) ? prev : [...prev, id]));
     setActiveWindow(null);
-  };
+  }, []);
 
-  const toggleMaximizeWindow = (id) => {
+  const toggleMaximizeWindow = useCallback((id) => {
     soundFx.playMaximize();
     setMaximizedWindows(prev => 
       prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id]
     );
-  };
+  }, []);
 
   const hasMaximized = openWindows.some(id => !minimizedWindows.includes(id) && maximizedWindows.includes(id));
 
@@ -507,7 +519,7 @@ export default function App() {
         {/* Action Buttons */}
         <div className="space-y-3 pt-1">
           <button 
-            onClick={() => { soundFx.playOpen(); setBootPhase(2); }} 
+            onClick={enterWorkspace} 
             className="w-full py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black font-black uppercase text-xs md:text-sm tracking-wider rounded-xl transition-all shadow-[0_0_25px_rgba(34,211,238,0.5)] active:scale-98 flex items-center justify-center gap-2 cursor-pointer group"
           >
             <Rocket size={18} className="text-black group-hover:translate-x-1 transition-transform" />
@@ -694,50 +706,45 @@ export default function App() {
           {openWindows.filter(id => !minimizedWindows.includes(id)).map((id) => {
             const isMax = maximizedWindows.includes(id);
             const deltaX = getDockDeltaX(id);
-            const skewMagnitude = Math.min(10, Math.max(2, Math.abs(deltaX) / 26));
-            const skewDir = deltaX >= 0 ? 1 : -1;
 
             return (
               <motion.div 
                 key={id} 
                 initial={{ 
                   x: deltaX,
-                  y: 350, 
-                  scaleX: 0.08, 
-                  scaleY: 0.04, 
-                  rotateX: 58,
-                  skewX: 0,
+                  y: 280, 
+                  scaleX: 0.15, 
+                  scaleY: 0.08, 
+                  rotateX: 45,
                   opacity: 0 
                 }} 
                 animate={{ 
-                  x: [deltaX, Math.round(deltaX * 0.6), Math.round(deltaX * 0.18), 0],
-                  y: [350, 220, 65, 0], 
-                  scaleX: [0.08, 0.38, 0.82, 1], 
-                  scaleY: [0.04, 0.32, 0.82, 1], 
-                  rotateX: [58, 38, 14, 0],
-                  skewX: [0, -skewDir * skewMagnitude * 0.7, skewDir * skewMagnitude, 0],
-                  opacity: [0, 0.88, 0.98, 1],
+                  x: 0,
+                  y: 0, 
+                  scaleX: 1, 
+                  scaleY: 1, 
+                  rotateX: 0,
+                  opacity: 1,
                   transition: { 
-                    duration: 0.58, 
-                    times: [0, 0.28, 0.68, 1],
-                    ease: ["easeOut", "easeInOut", "easeOut"] 
+                    duration: 0.32, 
+                    ease: [0.16, 1, 0.3, 1]
                   } 
                 }} 
                 exit={{ 
-                  x: [0, Math.round(deltaX * 0.18), Math.round(deltaX * 0.6), deltaX],
-                  y: [0, 65, 220, 350], 
-                  scaleX: [1, 0.82, 0.38, 0.08], 
-                  scaleY: [1, 0.82, 0.32, 0.04], 
-                  rotateX: [0, 14, 38, 58],
-                  skewX: [0, skewDir * skewMagnitude, -skewDir * skewMagnitude * 0.7, 0],
-                  opacity: [1, 0.95, 0.75, 0],
+                  x: deltaX,
+                  y: 280, 
+                  scaleX: 0.15, 
+                  scaleY: 0.08, 
+                  rotateX: 45,
+                  opacity: 0,
                   transition: { 
-                    duration: 0.54, 
-                    times: [0, 0.28, 0.68, 1],
-                    ease: ["easeIn", "easeInOut", "easeIn"] 
+                    duration: 0.28, 
+                    ease: [0.7, 0, 0.84, 0] 
                   } 
                 }}
-                onMouseDown={() => setActiveWindow(id)}
+                onMouseDown={() => {
+                  if (activeWindow !== id) setActiveWindow(id);
+                }}
                 style={{ 
                   zIndex: activeWindow === id ? 100 : (50 + openWindows.indexOf(id)), 
                   position: 'absolute',
