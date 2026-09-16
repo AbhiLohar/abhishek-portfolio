@@ -6,7 +6,7 @@ import {
   Palette, Briefcase, Minus,
   Eye, Mail, Gamepad2, CloudSun, Github, Linkedin, FileText, ExternalLink,
   Maximize2, Minimize2, Volume2, VolumeX, Monitor, Cpu, Music, Play, Square, FileEdit,
-  Sparkles, Check, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Rocket, Wifi, Battery
+  Sparkles, Check, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Rocket, Wifi, Battery, AlertTriangle
 } from 'lucide-react';
 import { soundFx } from './utils/audio';
 import ThreeDBackground from './components/ThreeDBackground';
@@ -1728,6 +1728,7 @@ const ContactContent = React.memo(() => {
   const [formData, setFormData] = useState({ name: '', contact: '', message: '' });
   const [isSent, setIsSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
   
   const validateContact = (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1737,8 +1738,9 @@ const ContactContent = React.memo(() => {
 
   const handleSend = async (e) => {
     e.preventDefault();
+    setErrorMsg(null);
     if (!validateContact(formData.contact)) {
-      alert("SYSTEM ERROR: Invalid Contact Method.");
+      setErrorMsg("Invalid Contact Method. Please enter a valid Email address or Phone number.");
       return;
     }
 
@@ -1764,56 +1766,111 @@ const ContactContent = React.memo(() => {
       ]);
 
       setIsSent(true);
+      setErrorMsg(null);
       setFormData({ name: '', contact: '', message: '' });
       setTimeout(() => setIsSent(false), 5000);
     } catch (error) {
       console.error("FULL ERROR LOG:", error);
-      alert("TRANSMISSION ERROR: " + (error.text || error.message || "Unknown Failure"));
+      const rawError = error.text || error.message || (typeof error === 'string' ? error : "Unknown Transmission Error");
+      setErrorMsg(rawError);
     } finally {
       setIsSending(false);
     }
   };
 
+  const mailtoSubject = encodeURIComponent(`Contact from ${formData.name || 'AB-OS Visitor'}`);
+  const mailtoBody = encodeURIComponent(`Name: ${formData.name}\nContact: ${formData.contact}\n\nMessage:\n${formData.message}`);
+  const mailtoUrl = `mailto:abhisheklohar0509@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
   return (
-    <div className="space-y-6 relative h-full">
-      <h2 className="text-2xl md:text-3xl font-black italic text-green-500 uppercase tracking-tighter border-b border-green-500/20 pb-2">
-        Secure Transmission
-      </h2>
+    <div className="space-y-5 relative h-full font-mono text-white">
+      <div className="border-b border-green-500/20 pb-2 flex justify-between items-end">
+        <h2 className="text-2xl md:text-3xl font-black italic text-green-500 uppercase tracking-tighter">
+          Secure Transmission
+        </h2>
+        <span className="text-[9px] text-white/40 uppercase font-bold">AB-OS Comm v5.2</span>
+      </div>
 
       <AnimatePresence>
         {isSent && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }} 
+            initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0 }}
-            className="bg-green-600 text-black p-3 text-[10px] font-black uppercase text-center mb-4 border border-white shadow-[0_0_15px_rgba(34,197,94,0.5)]"
+            className="bg-green-600 text-black p-3 text-xs font-black uppercase text-center border border-white shadow-[0_0_15px_rgba(34,197,94,0.5)] flex items-center justify-center gap-2"
           >
-            NOTIFY: Message transmitted successfully.
+            <Check size={16} /> NOTIFY: Message transmitted successfully to Abhishek.
+          </motion.div>
+        )}
+
+        {errorMsg && (
+          <motion.div 
+            initial={{ opacity: 0, y: -6 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0 }}
+            className="bg-red-950/90 border-2 border-red-500/70 p-3 rounded space-y-2 text-xs shadow-lg"
+          >
+            <div className="flex items-center gap-2 text-red-400 font-bold uppercase">
+              <AlertTriangle size={16} className="text-red-400 shrink-0" />
+              <span>TRANSMISSION DELAY / SERVICE RE-AUTH REQUIRED</span>
+            </div>
+            <p className="text-white/80 text-[10px] leading-relaxed">
+              EmailJS Service Error: <code className="text-red-300 font-bold">{errorMsg}</code>
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <a 
+                href={mailtoUrl}
+                className="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 text-[10px] font-black uppercase rounded flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              >
+                <Mail size={12} /> Send via Direct Email Client (`mailto:`)
+              </a>
+              <a 
+                href="https://wa.me/919341852194" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-green-600 hover:bg-green-400 text-black px-3 py-1.5 text-[10px] font-black uppercase rounded flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              >
+                <ExternalLink size={12} /> Chat on WhatsApp (+91 9341852194)
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <form onSubmit={handleSend} className="space-y-4">
+      <form onSubmit={handleSend} className="space-y-3.5">
         <div className="space-y-1">
-          <label className="text-[10px] text-green-500/70 uppercase font-bold">Identity Name</label>
-          <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="ENTER NAME..." />
+          <label className="text-[10px] text-green-500/80 uppercase font-bold tracking-wider">Identity Name</label>
+          <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-black/80 border border-white/20 p-2.5 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="ENTER NAME..." />
         </div>
         
         <div className="space-y-1">
-          <label className="text-[10px] text-green-500/70 uppercase font-bold">Contact Method (Email / Phone)</label>
-          <input required type="text" value={formData.contact} onChange={(e) => setFormData({...formData, contact: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="GMAIL OR PHONE NUMBER..." />
+          <label className="text-[10px] text-green-500/80 uppercase font-bold tracking-wider">Contact Method (Email / Phone)</label>
+          <input required type="text" value={formData.contact} onChange={(e) => setFormData({...formData, contact: e.target.value})} className="w-full bg-black/80 border border-white/20 p-2.5 text-xs text-white outline-none focus:border-green-500 transition-colors" placeholder="GMAIL OR PHONE NUMBER..." />
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] text-green-500/70 uppercase font-bold">Encrypted Message</label>
-          <textarea required value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full bg-black border border-white/20 p-3 text-xs text-white outline-none focus:border-green-500 transition-colors h-24 resize-none" placeholder="TYPE MESSAGE HERE..." />
+          <label className="text-[10px] text-green-500/80 uppercase font-bold tracking-wider">Encrypted Message</label>
+          <textarea required value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full bg-black/80 border border-white/20 p-2.5 text-xs text-white outline-none focus:border-green-500 transition-colors h-24 resize-none leading-relaxed" placeholder="TYPE MESSAGE HERE..." />
         </div>
         
-        <button type="submit" disabled={isSending} className={`w-full py-3.5 text-[11px] font-black uppercase transition-all flex items-center justify-center gap-2 ${isSending ? 'bg-gray-600 cursor-wait' : 'bg-green-600 hover:bg-green-400 text-black'}`}>
+        <button type="submit" disabled={isSending} className={`w-full py-3 text-[11px] font-black uppercase transition-all flex items-center justify-center gap-2 ${isSending ? 'bg-gray-600 cursor-wait' : 'bg-green-600 hover:bg-green-400 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-98'}`}>
           <Mail size={14} className={isSending ? "animate-spin" : ""} /> 
-          {isSending ? "Processing..." : "Send Transmission"}
+          {isSending ? "Processing Transmission..." : "Send Transmission"}
         </button>
       </form>
+
+      {/* DIRECT CONTACT CHANNELS */}
+      <div className="border-t border-white/10 pt-3 space-y-1.5 text-[10px] text-white/60">
+        <p className="text-green-400 font-bold uppercase text-[9px] tracking-widest">Direct Channels:</p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+          <a href="mailto:abhisheklohar0509@gmail.com" className="hover:text-green-400 flex items-center gap-1 transition-colors">
+            <Mail size={11} className="text-green-500" /> abhisheklohar0509@gmail.com
+          </a>
+          <a href="https://wa.me/919341852194" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 flex items-center gap-1 transition-colors">
+            <ExternalLink size={11} className="text-green-500" /> +91 9341852194 (WhatsApp)
+          </a>
+        </div>
+      </div>
     </div>
   );
 });
