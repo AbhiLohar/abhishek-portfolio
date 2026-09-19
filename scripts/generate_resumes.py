@@ -17,8 +17,8 @@ def build_technical_resume():
         pagesize=letter,
         leftMargin=36,
         rightMargin=36,
-        topMargin=30,
-        bottomMargin=28
+        topMargin=26,
+        bottomMargin=24
     )
 
     styles = getSampleStyleSheet()
@@ -31,8 +31,8 @@ def build_technical_resume():
         'DocTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=22,
+        fontSize=19,
+        leading=21,
         alignment=1,
         textColor=NAVY
     )
@@ -41,8 +41,8 @@ def build_technical_resume():
         'ContactLine',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.5,
-        leading=11.5,
+        fontSize=8.2,
+        leading=11.0,
         alignment=1,
         textColor=DARK_GRAY
     )
@@ -51,8 +51,8 @@ def build_technical_resume():
         'SectionHeading',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=9.5,
-        leading=11.5,
+        fontSize=9.0,
+        leading=11.0,
         textColor=NAVY,
         textTransform='uppercase'
     )
@@ -61,8 +61,8 @@ def build_technical_resume():
         'BodyTextCustom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.3,
-        leading=11.2,
+        fontSize=8.0,
+        leading=10.5,
         textColor=DARK_GRAY
     )
 
@@ -70,8 +70,8 @@ def build_technical_resume():
         'BoldLabel',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=8.3,
-        leading=11.2,
+        fontSize=8.0,
+        leading=10.5,
         textColor=NAVY
     )
 
@@ -79,18 +79,18 @@ def build_technical_resume():
         'BulletCustom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.3,
-        leading=11.0,
+        fontSize=8.0,
+        leading=10.5,
         textColor=DARK_GRAY,
-        leftIndent=12,
-        firstLineIndent=-8
+        leftIndent=10,
+        firstLineIndent=-7
     )
 
     def section_header(title):
         return [
-            Spacer(1, 4),
+            Spacer(1, 3),
             Paragraph(title, section_heading_style),
-            HRFlowable(width="100%", thickness=0.75, color=LINE_COLOR, spaceBefore=1.5, spaceAfter=3),
+            HRFlowable(width="100%", thickness=0.75, color=LINE_COLOR, spaceBefore=1.0, spaceAfter=2.5),
         ]
 
     story = []
@@ -110,14 +110,14 @@ def build_technical_resume():
         '<a href="https://linkedin.com/in/abhishek-lohar-216099350/" color="#1d4ed8"><b>LinkedIn:</b> linkedin.com/in/abhishek-lohar-216099350</a>',
         contact_style
     ))
-    story.append(Spacer(1, 3))
+    story.append(Spacer(1, 2))
 
     # --- PROFILE ---
     story.extend(section_header("PROFILE"))
     story.append(Paragraph(
-        "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence "
-        "and Deep Learning. Passionate about leveraging technology to build innovative solutions, with hands-on experience "
-        "in full-stack development and hardware-software integration.",
+        "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence, "
+        "Deep Learning, and backend development. Experienced in building AI-powered applications, RAG pipelines, full-stack systems, "
+        "and scalable software solutions. Passionate about open-source development and solving real-world problems through technology.",
         body_style
     ))
     story.append(Spacer(1, 1))
@@ -130,30 +130,30 @@ def build_technical_resume():
             Paragraph("<font color='#374151'>Amaravati, AP</font>", ParagraphStyle('R1', parent=body_style, alignment=2))
         ],
         [
-            Paragraph("<i>B.Tech in Computer Science and Engineering</i>", body_style),
+            Paragraph("<i>B.Tech in Computer Science and Engineering &mdash; Current CGPA: <b>8.33 / 10.0</b></i>", body_style),
             Paragraph("<font color='#374151'>2023 &ndash; 2027</font>", ParagraphStyle('R2', parent=body_style, alignment=2))
-        ],
-        [
-            Paragraph("&bull; Current CGPA: <b>8.33</b>", bullet_style),
-            Paragraph("", body_style)
         ],
         [
             Paragraph("<b>Vidya Bharati Chinmaya Vidyalaya (CBSE)</b>", bold_label_style),
             Paragraph("<font color='#374151'>Jamshedpur, JH</font>", ParagraphStyle('R3', parent=body_style, alignment=2))
         ],
         [
-            Paragraph("<i>Higher Secondary Education (Class XII)</i>", body_style),
+            Paragraph("<i>Higher Secondary Education (Class XII) &mdash; Percentage: <b>79.8%</b></i>", body_style),
             Paragraph("<font color='#374151'>2022</font>", ParagraphStyle('R4', parent=body_style, alignment=2))
         ],
         [
-            Paragraph("&bull; Percentage: <b>79.8%</b>", bullet_style),
-            Paragraph("", body_style)
-        ]
+            Paragraph("<b>Vidya Bharati Chinmaya Vidyalaya (CBSE)</b>", bold_label_style),
+            Paragraph("<font color='#374151'>Jamshedpur, JH</font>", ParagraphStyle('R5', parent=body_style, alignment=2))
+        ],
+        [
+            Paragraph("<i>Secondary Education (Class X) &mdash; Percentage: <b>85.8%</b></i>", body_style),
+            Paragraph("<font color='#374151'>2020</font>", ParagraphStyle('R6', parent=body_style, alignment=2))
+        ],
     ]
     t_edu = Table(edu_table_data, colWidths=[380, 160])
     t_edu.setStyle(TableStyle([
-        ('TOPPADDING', (0,0), (-1,-1), 0.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 0.5),
+        ('TOPPADDING', (0,0), (-1,-1), 0.3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0.3),
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
@@ -163,15 +163,15 @@ def build_technical_resume():
     # --- TECHNICAL SKILLS ---
     story.extend(section_header("TECHNICAL SKILLS"))
     skills_data = [
-        [Paragraph("<b>Languages:</b>", bold_label_style), Paragraph("Java, Python, SQL, C++, HTML/CSS, JavaScript", body_style)],
-        [Paragraph("<b>AI/ML Stack:</b>", bold_label_style), Paragraph("Ollama, LangChain, ChromaDB, RAG, Embeddings, LLMs, OpenCV, Data Science", body_style)],
-        [Paragraph("<b>Tools & Frameworks:</b>", bold_label_style), Paragraph("Raspberry Pi, Chrome Extension API, PyPI, pytest, Git, OpenSource Development", body_style)],
+        [Paragraph("<b>Languages:</b>", bold_label_style), Paragraph("Java, Python, SQL, C++, JavaScript, HTML/CSS", body_style)],
+        [Paragraph("<b>AI/ML Stack:</b>", bold_label_style), Paragraph("LLMs, RAG, Embeddings, LangChain, ChromaDB, Ollama, OpenCV, Data Science", body_style)],
+        [Paragraph("<b>Backend & Tools:</b>", bold_label_style), Paragraph("FastAPI, React, PostgreSQL, Redis, Kafka, Raspberry Pi, Git, pytest, PyPI, GitHub Actions, Open-Source", body_style)],
         [Paragraph("<b>Soft Skills:</b>", bold_label_style), Paragraph("Leadership, Creative Thinking, Problem Solving", body_style)],
     ]
-    t_skills = Table(skills_data, colWidths=[120, 420])
+    t_skills = Table(skills_data, colWidths=[110, 430])
     t_skills.setStyle(TableStyle([
-        ('TOPPADDING', (0,0), (-1,-1), 0.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 0.5),
+        ('TOPPADDING', (0,0), (-1,-1), 0.3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0.3),
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
@@ -185,8 +185,8 @@ def build_technical_resume():
     p1_title = "<b>local-persona-memory &mdash; Published PyPI Package</b> | <i>Python, Ollama, ChromaDB, LangChain, RAG</i>"
     story.append(Paragraph(p1_title, bold_label_style))
     story.append(Paragraph(
-        "&bull; Published production-grade open-source Python package on PyPI &mdash; installable worldwide via "
-        "<code>pip install local-persona-memory</code> &mdash; giving any local LLM permanent long-term memory with zero cloud dependency.",
+        "&bull; Published production-grade open-source Python package on PyPI (<code>pip install local-persona-memory</code>), "
+        "giving local LLMs permanent long-term memory with zero cloud dependency.",
         bullet_style
     ))
     story.append(Paragraph(
@@ -194,36 +194,34 @@ def build_technical_resume():
         "export/import, and callback hooks. Shipped with 160 passing tests and GitHub Actions CI/CD.",
         bullet_style
     ))
-    story.append(Spacer(1, 2.5))
+    story.append(Spacer(1, 2.0))
 
     # Project 2
-    p2_title = "<b>URL Shortener & Analytics Platform</b> | <i>Python, FastAPI, PostgreSQL, Redis, Kafka</i>"
+    p2_title = "<b>Fact Knowledge Layer &mdash; Document Intelligence System</b> | <i>Python, FastAPI, OpenAI, ChromaDB, SQLite, React</i>"
     story.append(Paragraph(p2_title, bold_label_style))
     story.append(Paragraph(
-        "&bull; Built a microservices-based URL shortener with separate Shorten, Redirect, and Analytics services behind an API "
-        "gateway to practice service decomposition.",
+        "&bull; Built enterprise document intelligence pipeline extracting atomic, auditable facts from financial PDFs with value, unit, time, scope, source quote, and page-level provenance using GPT-4o mini.",
         bullet_style
     ))
     story.append(Paragraph(
-        "&bull; Used PostgreSQL for persistent URL mappings and Redis caching in front of the Redirect service; Kafka streams "
-        "click events asynchronously to Analytics.",
+        "&bull; Engineered two-stage reconciliation engine using ChromaDB semantic retrieval to prune irrelevant fact pairs before GPT-4o reasoning, reducing potential O(N&sup2;) comparisons by ~98%.",
         bullet_style
     ))
-    story.append(Spacer(1, 2.5))
+    story.append(Paragraph(
+        "&bull; Implemented FastAPI + React web application with asynchronous background processing, multi-dimensional fact filtering, evidence drill-down, and evaluation dashboard.",
+        bullet_style
+    ))
+    story.append(Spacer(1, 2.0))
 
     # Project 3
-    p3_title = "<b>Smart Attendance Face Recognition System</b> | <i>Raspberry Pi, Python, OpenCV</i>"
+    p3_title = "<b>URL Shortener & Analytics Platform</b> | <i>Python, FastAPI, PostgreSQL, Redis, Kafka</i>"
     story.append(Paragraph(p3_title, bold_label_style))
     story.append(Paragraph(
-        "&bull; Designed a hardware-software integrated project using Raspberry Pi for real-time biometric identification.",
+        "&bull; Built microservices-based URL shortener with separate Shorten, Redirect, and Analytics services behind an API gateway to practice service decomposition.",
         bullet_style
     ))
     story.append(Paragraph(
-        "&bull; Utilized OpenCV libraries for facial detection and recognition to automate attendance tracking logs.",
-        bullet_style
-    ))
-    story.append(Paragraph(
-        "&bull; Engineered an end-to-end pipeline from image capture to database logging, ensuring 95%+ recognition accuracy.",
+        "&bull; Used PostgreSQL for persistent URL mappings and Redis caching in front of Redirect service; Kafka streams click events asynchronously to Analytics.",
         bullet_style
     ))
     story.append(Spacer(1, 1))
@@ -232,12 +230,10 @@ def build_technical_resume():
     story.extend(section_header("CERTIFICATIONS & ACHIEVEMENTS"))
     certs = [
         "&bull; <b>Oracle Cloud Infrastructure (OCI) Certified AI Foundations Associate</b>",
-        "&bull; <b>Coursera Full Stack Web Development</b>",
-        "&bull; <b>Infosys Springboard &mdash; Introduction to Data Science</b> (May 2026)",
-        "&bull; <b>Hashgraph Developer Course</b>",
+        "&bull; <b>Finalist &mdash; Engineering Clinics 2025</b>",
         "&bull; <b>High-Performance Coding (HPC) Certification</b> by IAMNEO",
-        "&bull; <b>Finalist in Engineering Clinics (2025)</b>",
-        "&bull; <b>Hack2Skill GDG (Google Developer Groups) Hackathons</b> at VIT-AP"
+        "&bull; <b>Infosys Springboard &mdash; Introduction to Data Science</b> (May 2026)",
+        "&bull; <b>Hashgraph Developer Course</b> &mdash; Hack2Skill GDG Hackathons at VIT-AP"
     ]
     for c in certs:
         story.append(Paragraph(c, bullet_style))
@@ -259,8 +255,8 @@ def build_general_cv():
         pagesize=letter,
         leftMargin=36,
         rightMargin=36,
-        topMargin=28,
-        bottomMargin=26
+        topMargin=26,
+        bottomMargin=24
     )
 
     styles = getSampleStyleSheet()
@@ -272,8 +268,8 @@ def build_general_cv():
         'CVTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=22,
+        fontSize=19,
+        leading=21,
         alignment=1,
         textColor=PRIMARY
     )
@@ -282,8 +278,8 @@ def build_general_cv():
         'CVSubtitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=9,
-        leading=11,
+        fontSize=8.5,
+        leading=10.5,
         alignment=1,
         textColor=ACCENT
     )
@@ -292,8 +288,8 @@ def build_general_cv():
         'CVContact',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.3,
-        leading=11,
+        fontSize=8.0,
+        leading=10.5,
         alignment=1,
         textColor=TEXT_COLOR
     )
@@ -302,8 +298,8 @@ def build_general_cv():
         'CVSectionHead',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=9.5,
-        leading=11.5,
+        fontSize=9.0,
+        leading=11.0,
         textColor=PRIMARY,
         textTransform='uppercase'
     )
@@ -312,8 +308,8 @@ def build_general_cv():
         'CVBody',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.2,
-        leading=11.0,
+        fontSize=7.9,
+        leading=10.3,
         textColor=TEXT_COLOR
     )
 
@@ -321,8 +317,8 @@ def build_general_cv():
         'CVBold',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=8.2,
-        leading=11.0,
+        fontSize=7.9,
+        leading=10.3,
         textColor=PRIMARY
     )
 
@@ -330,18 +326,18 @@ def build_general_cv():
         'CVBullet',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.2,
-        leading=11.0,
+        fontSize=7.9,
+        leading=10.3,
         textColor=TEXT_COLOR,
-        leftIndent=12,
-        firstLineIndent=-8
+        leftIndent=10,
+        firstLineIndent=-7
     )
 
     def section_header(title):
         return [
-            Spacer(1, 3.5),
+            Spacer(1, 3),
             Paragraph(f"<b>{title}</b>", section_heading_style),
-            HRFlowable(width="100%", thickness=0.75, color=colors.HexColor("#94A3B8"), spaceBefore=1.5, spaceAfter=3),
+            HRFlowable(width="100%", thickness=0.75, color=colors.HexColor("#94A3B8"), spaceBefore=1.0, spaceAfter=2.5),
         ]
 
     story = []
@@ -358,7 +354,7 @@ def build_general_cv():
         contact_style
     ))
     story.append(Paragraph(
-        'Jamshedpur, Jharkhand &nbsp;|&nbsp; '
+        'Jamshedpur, Jharkhand-831004 &nbsp;|&nbsp; '
         '<a href="https://github.com/AbhiLohar" color="#1e40af"><b>GitHub:</b> github.com/AbhiLohar</a> &nbsp;|&nbsp; '
         '<a href="https://linkedin.com/in/abhishek-lohar-216099350/" color="#1e40af"><b>LinkedIn:</b> linkedin.com/in/abhishek-lohar-216099350</a>',
         contact_style
@@ -368,11 +364,9 @@ def build_general_cv():
     # Executive Summary
     story.extend(section_header("PROFESSIONAL SUMMARY"))
     story.append(Paragraph(
-        "Innovative and results-driven Computer Science student at VIT-AP (CGPA: 8.33) with comprehensive expertise spanning "
-        "<b>production software engineering, distributed backend systems, AI/ML pipelines, and full-stack development</b>. "
-        "Author of a published open-source PyPI package with 160 unit/integration tests and automated CI/CD pipelines. Demonstrated ability to "
-        "engineer low-latency architectures with Redis, Kafka, and FastAPI, alongside edge computer vision with OpenCV and Raspberry Pi. "
-        "Adept in algorithmic problem-solving, clean code design, and cross-functional team delivery.",
+        "Highly motivated Computer Science and Engineering student at VIT-AP with a strong focus on Artificial Intelligence, "
+        "Deep Learning, and backend development. Experienced in building AI-powered applications, RAG pipelines, full-stack systems, "
+        "and scalable software solutions. Passionate about open-source development and solving real-world problems through technology.",
         body_style
     ))
     story.append(Spacer(1, 1))
@@ -380,16 +374,16 @@ def build_general_cv():
     # Technical Skills
     story.extend(section_header("CORE TECHNICAL COMPETENCIES"))
     skills_data = [
-        [Paragraph("<b>Programming Languages:</b>", bold_label), Paragraph("Java, Python, C++, SQL (PostgreSQL), JavaScript, HTML5/CSS3", body_style)],
-        [Paragraph("<b>Backend & Distributed Systems:</b>", bold_label), Paragraph("FastAPI, RESTful APIs, Microservices, Redis (Caching), Apache Kafka, API Gateway", body_style)],
-        [Paragraph("<b>AI, ML & Vector Search:</b>", bold_label), Paragraph("Ollama, LangChain, ChromaDB, RAG Pipelines, Semantic Search, LLMs, OpenCV, Embeddings", body_style)],
-        [Paragraph("<b>DevOps, Testing & Tools:</b>", bold_label), Paragraph("Git, GitHub Actions CI/CD, PyPI Package Deployment, pytest (160+ tests), Linux/Bash, Raspberry Pi", body_style)],
+        [Paragraph("<b>Programming Languages:</b>", bold_label), Paragraph("Java, Python, SQL, C++, JavaScript, HTML/CSS", body_style)],
+        [Paragraph("<b>AI, ML & Vector Search:</b>", bold_label), Paragraph("LLMs, RAG, Embeddings, LangChain, ChromaDB, Ollama, OpenAI, OpenCV, Data Science", body_style)],
+        [Paragraph("<b>Backend & Web Systems:</b>", bold_label), Paragraph("FastAPI, React, PostgreSQL, Redis, Apache Kafka, RESTful APIs, Microservices", body_style)],
+        [Paragraph("<b>DevOps, Testing & Tools:</b>", bold_label), Paragraph("Git, GitHub Actions CI/CD, PyPI Package Deployment, pytest (160+ tests), Raspberry Pi", body_style)],
         [Paragraph("<b>Core CS Fundamentals:</b>", bold_label), Paragraph("Data Structures & Algorithms, Object-Oriented Design (OOD), DBMS, Operating Systems, Computer Networks", body_style)],
     ]
     t_skills = Table(skills_data, colWidths=[140, 400])
     t_skills.setStyle(TableStyle([
-        ('TOPPADDING', (0,0), (-1,-1), 0.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 0.5),
+        ('TOPPADDING', (0,0), (-1,-1), 0.3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0.3),
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
@@ -404,11 +398,7 @@ def build_general_cv():
             Paragraph("<b>2023 &ndash; 2027</b>", ParagraphStyle('R1', parent=body_style, alignment=2))
         ],
         [
-            Paragraph("<i>Bachelor of Technology in Computer Science and Engineering &mdash; <b>CGPA: 8.33 / 10.0</b></i>", body_style),
-            Paragraph("", body_style)
-        ],
-        [
-            Paragraph("&bull; <i>Relevant Coursework:</i> Data Structures & Algorithms, Database Systems, Object-Oriented Programming, AI Foundations.", bullet_style),
+            Paragraph("<i>B.Tech in Computer Science and Engineering &mdash; <b>CGPA: 8.33 / 10.0</b></i>", body_style),
             Paragraph("", body_style)
         ],
         [
@@ -419,11 +409,19 @@ def build_general_cv():
             Paragraph("<i>Higher Secondary Education (Class XII) &mdash; <b>Aggregate: 79.8%</b></i>", body_style),
             Paragraph("", body_style)
         ],
+        [
+            Paragraph("<b>Vidya Bharati Chinmaya Vidyalaya (CBSE)</b> &mdash; Jamshedpur, India", bold_label),
+            Paragraph("<b>2020</b>", ParagraphStyle('R3', parent=body_style, alignment=2))
+        ],
+        [
+            Paragraph("<i>Secondary Education (Class X) &mdash; <b>Aggregate: 85.8%</b></i>", body_style),
+            Paragraph("", body_style)
+        ],
     ]
     t_edu = Table(edu_table_data, colWidths=[430, 110])
     t_edu.setStyle(TableStyle([
-        ('TOPPADDING', (0,0), (-1,-1), 0.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 0.5),
+        ('TOPPADDING', (0,0), (-1,-1), 0.3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0.3),
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
@@ -440,61 +438,45 @@ def build_general_cv():
         bold_label
     ))
     story.append(Paragraph(
-        "&bull; Architected and published a production-grade Python package on <b>PyPI</b> (<code>pip install local-persona-memory</code>), "
+        "&bull; Architected and published open-source Python package on <b>PyPI</b> (<code>pip install local-persona-memory</code>), "
         "giving local LLMs autonomous long-term persistent memory with 100% data privacy and zero cloud dependence.",
         bullet_style
     ))
     story.append(Paragraph(
-        "&bull; Designed a resilient RAG pipeline incorporating ChromaDB vector embeddings, chunked PDF/document ingestion, sub-second semantic search, "
-        "and dynamic conversation recall hooks.",
+        "&bull; Designed resilient RAG pipeline incorporating ChromaDB vector embeddings, chunked PDF document ingestion, sub-second semantic search, "
+        "and dynamic conversation recall hooks. Shipped with <b>160 passing tests</b> and GitHub Actions CI/CD.",
+        bullet_style
+    ))
+    story.append(Spacer(1, 1.5))
+
+    # Project 2
+    story.append(Paragraph(
+        "<b>Fact Knowledge Layer &mdash; Document Intelligence System</b> &nbsp;|&nbsp; "
+        "<i>Python, FastAPI, OpenAI, ChromaDB, SQLite, React</i>",
+        bold_label
+    ))
+    story.append(Paragraph(
+        "&bull; Built enterprise document intelligence pipeline extracting atomic, auditable facts from financial PDFs with value, unit, time, scope, source quote, and page-level provenance using GPT-4o mini and Pydantic.",
         bullet_style
     ))
     story.append(Paragraph(
-        "&bull; Implemented <b>160 passing automated unit/integration tests</b> with <code>pytest</code> and established end-to-end automated "
-        "CI/CD workflows with GitHub Actions for release quality assurance.",
+        "&bull; Engineered two-stage reconciliation engine using ChromaDB semantic retrieval to prune irrelevant fact pairs before GPT-4o reasoning, reducing potential O(N&sup2;) comparisons by ~98%.",
         bullet_style
     ))
-    story.append(Spacer(1, 2))
+    story.append(Spacer(1, 1.5))
 
-    # Project 2
+    # Project 3
     story.append(Paragraph(
         "<b>Distributed URL Shortener & Analytics Engine</b> &nbsp;|&nbsp; "
         "<i>FastAPI, PostgreSQL, Redis, Apache Kafka, Microservices Architecture</i>",
         bold_label
     ))
     story.append(Paragraph(
-        "&bull; Developed a decoupled, scalable microservices backend featuring isolated Shorten, Redirect, and Analytics services "
-        "coordinated behind a unified API Gateway.",
+        "&bull; Developed decoupled microservices backend featuring isolated Shorten, Redirect, and Analytics services coordinated behind API Gateway.",
         bullet_style
     ))
     story.append(Paragraph(
-        "&bull; Configured <b>Redis in-memory caching</b> for sub-5ms URL redirects, paired with <b>PostgreSQL</b> for ACID-compliant persistence "
-        "and transactional durability.",
-        bullet_style
-    ))
-    story.append(Paragraph(
-        "&bull; Integrated <b>Apache Kafka</b> event streaming to asynchronously decouple incoming click metrics from the critical redirect path, "
-        "guaranteeing zero latency penalty for end-users.",
-        bullet_style
-    ))
-    story.append(Spacer(1, 2))
-
-    # Project 3
-    story.append(Paragraph(
-        "<b>Smart Attendance Face Recognition System</b> &nbsp;|&nbsp; "
-        "<i>Raspberry Pi, OpenCV, Python, Computer Vision, SQLite/MySQL</i>",
-        bold_label
-    ))
-    story.append(Paragraph(
-        "&bull; Built an end-to-end embedded biometric attendance device integrating Raspberry Pi hardware cameras with real-time OpenCV detection.",
-        bullet_style
-    ))
-    story.append(Paragraph(
-        "&bull; Trained facial landmark classification models to automate contactless attendance logging with <b>95%+ recognition accuracy</b>.",
-        bullet_style
-    ))
-    story.append(Paragraph(
-        "&bull; Optimized frame-processing throughput for resource-constrained edge hardware, preventing frame drops during concurrent verification.",
+        "&bull; Configured <b>Redis in-memory caching</b> for sub-5ms redirects with <b>PostgreSQL</b> persistence, integrated <b>Apache Kafka</b> for asynchronous click metrics streaming.",
         bullet_style
     ))
     story.append(Spacer(1, 1))
@@ -502,13 +484,11 @@ def build_general_cv():
     # Certifications & Achievements
     story.extend(section_header("CERTIFICATIONS, HONORS & AWARDS"))
     honors = [
-        "&bull; <b>Oracle Cloud Infrastructure (OCI) Certified AI Foundations Associate:</b> Validated enterprise AI and cloud paradigms.",
-        "&bull; <b>Coursera Full Stack Web Development Specialization:</b> Hands-on modern responsive web systems and REST architecture.",
-        "&bull; <b>Infosys Springboard &mdash; Introduction to Data Science:</b> Advanced data wrangling, analytics, and statistical modeling.",
-        "&bull; <b>High-Performance Coding (HPC) Certification (IAMNEO):</b> Algorithmic problem solving and runtime execution optimization.",
-        "&bull; <b>Hashgraph Developer Course:</b> Distributed ledger technology, consensus algorithms, and decentralized applications.",
+        "&bull; <b>Oracle Cloud Infrastructure (OCI) Certified AI Foundations Associate:</b> Enterprise AI & cloud paradigms.",
         "&bull; <b>Finalist, Engineering Clinics 2025:</b> Recognized among top engineering innovators for practical hardware-software solutions.",
-        "&bull; <b>Active Competitor, Hack2Skill GDG Hackathons:</b> Accelerated collaborative prototyping under competitive time constraints."
+        "&bull; <b>High-Performance Coding (HPC) Certification (IAMNEO):</b> Algorithmic problem solving and runtime execution optimization.",
+        "&bull; <b>Infosys Springboard &mdash; Introduction to Data Science (May 2026):</b> Data wrangling, analytics, and statistical modeling.",
+        "&bull; <b>Hashgraph Developer Course & Hack2Skill GDG Hackathons:</b> Distributed ledger technology & collaborative hackathon prototyping."
     ]
     for h in honors:
         story.append(Paragraph(h, bullet_style))
